@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "liffan-all-school-platform",
+  "compatibility_date": "2026-10-01",
+  "pages_build_output_dir": "./dist",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "all-school-test-db",
+      "database_id": "840bbfcc-97ed-45c0-ba66-16d712b7d75c",
+      "migrations_dir": "migrations"
+    }
+  ]
+}

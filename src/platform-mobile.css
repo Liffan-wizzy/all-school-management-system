@@ -1,0 +1,25 @@
+@media(max-width:720px) {
+
+    .platform-brand-name,
+    .platform-nav-label {
+        display: none
+    }
+
+    .platform-sidebar nav {
+        margin-top: 30px
+    }
+
+    .platform-nav-item {
+        justify-content: center;
+        padding: 12px 0;
+        font-size: 0
+    }
+
+    .platform-nav-item>span:first-child {
+        font-size: 17px
+    }
+
+    .platform-nav-item>span+span {
+        display: none
+    }
+}
