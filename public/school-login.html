@@ -5,4 +5,40 @@
 </head><body><main><div class="brand">LIFFAN · ALL-SCHOOL</div><h1>Sign in</h1><p>Sign in with the account approved for your school and role.</p>
 <form id="loginForm"><label for="email">Email address</label><input id="email" type="email" autocomplete="username" required><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required><button id="submit" type="submit">Sign in</button></form>
 <div id="message" class="msg" role="status" aria-live="polite"></div><div class="links"><a href="/role-register.html">New teacher, secretary or parent? Request an account</a><br><a href="/accept-invite.html">Have a school invitation code?</a><br><a href="/register-school.html">Register a new school</a><br><a href="/">Return to website</a></div></main>
-<script>const form=document.querySelector('#loginForm'),message=document.querySelector('#message'),button=document.querySelector('#submit');form.addEventListener('submit',async e=>{e.preventDefault();button.disabled=true;message.textContent='Signing in…';try{const r=await fetch('/api/auth/login',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:document.querySelector('#email').value.trim(),password:document.querySelector('#password').value})});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||`Sign in failed (${r.status}).`);location.href='/role-dashboard.html';}catch(err){message.textContent=err.message||'Sign in failed.';button.disabled=false;}});</script></body></html>
+<script>
+const form=document.querySelector('#loginForm'),
+message=document.querySelector('#message'),
+button=document.querySelector('#submit');
+
+form.addEventListener('submit',async e=>{
+  e.preventDefault();
+  button.disabled=true;
+  message.textContent='Signing in…';
+
+  try{
+    const r=await fetch('/api/auth/login',{
+      method:'POST',
+      credentials:'same-origin',
+      headers:{
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({
+        email:document.querySelector('#email').value.trim(),
+        password:document.querySelector('#password').value
+      })
+    });
+
+    const d=await r.json().catch(()=>({}));
+
+    if(!r.ok)
+      throw new Error(d.error||`Sign in failed (${r.status}).`);
+
+    location.href='/role-dashboard.html';
+
+  }catch(err){
+    message.textContent=err.message||'Sign in failed.';
+    button.disabled=false;
+  }
+});
+</script></body></html>
+/api/auth/login
