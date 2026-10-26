@@ -124,32 +124,41 @@ export async function onRequestGet({ request, env }) {
       );
     }
 
-    const result = await env.DB
-      .prepare(`
-        SELECT
-          s.id,
-          s.name,
-          s.school_type,
-          s.location,
-          s.logo_url,
-          s.status,
-          s.created_at,
-          COUNT(st.id) AS student_count
-        FROM schools s
-        LEFT JOIN students st
-          ON CAST(st.school_id AS TEXT) = CAST(s.id AS TEXT)
-        GROUP BY
-          s.id,
-          s.name,
-          s.school_type,
-          s.location,
-          s.logo_url,
-          s.status,
-          s.created_at
-        ORDER BY s.created_at DESC
-      `)
-      .all();
+   const result = await env.DB.prepare(`
+  SELECT
+    s.id,
+    s.name,
+    s.school_type,
+    s.location,
+    s.logo_url,
+    s.status,
+    s.created_at,
+    sa.plan,
+    sa.paid_until,
+    sa.status AS access_status,
+    COUNT(DISTINCT st.id) AS student_count
+  FROM schools s
 
+  LEFT JOIN school_access sa
+    ON CAST(sa.school_id AS TEXT) = CAST(s.id AS TEXT)
+
+  LEFT JOIN students st
+    ON CAST(st.school_id AS TEXT) = CAST(s.id AS TEXT)
+
+  GROUP BY
+    s.id,
+    s.name,
+    s.school_type,
+    s.location,
+    s.logo_url,
+    s.status,
+    s.created_at,
+    sa.plan,
+    sa.paid_until,
+    sa.status
+
+  ORDER BY s.created_at DESC
+`).all();
     return json({
       ok: true,
       schools: result.results || []
