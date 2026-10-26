@@ -1,6 +1,6 @@
 const SESSION_COOKIE = 'liffan_session';
 const SESSION_HOURS = 12;
-const PBKDF2_ITERATIONS = 120000;
+const PBKDF2_ITERATIONS = 100000;
 
 export function json(body, status = 200, headers = {}) {
   return new Response(JSON.stringify(body), {
