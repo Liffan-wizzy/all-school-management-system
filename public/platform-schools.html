@@ -1,691 +1,1102 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
-  <title>School Registry · Liffan Platform</title>
+<title>Liffan Platform Admin</title>
 
-  <style>
-    :root {
-      font-family: Inter, system-ui, -apple-system, Segoe UI, sans-serif;
-      color: #172033;
-      background: #f2f6fb;
-    }
+<style>
+:root{
+  font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;
+  color:#172033;
+  background:#f2f6fb;
+}
 
-    * { box-sizing: border-box; }
+*{box-sizing:border-box}
 
-    body {
-      margin: 0;
-      padding: 22px;
-    }
+body{
+  margin:0;
+  background:#f2f6fb;
+}
 
-    .wrap {
-      max-width: 1100px;
-      margin: auto;
-    }
+.wrap{
+  max-width:1200px;
+  margin:auto;
+  padding:22px;
+}
 
-    .box {
-      background: #fff;
-      border: 1px solid #dce5f0;
-      border-radius: 16px;
-      padding: 22px;
-      margin-bottom: 14px;
-    }
+.top{
+  background:#172033;
+  color:white;
+  padding:22px;
+  border-radius:18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
+  flex-wrap:wrap;
+  margin-bottom:18px;
+}
 
-    .brand {
-      font-size: 12px;
-      font-weight: 850;
-      letter-spacing: .12em;
-      color: #245ad6;
-    }
+.brand{
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.13em;
+  color:#9fc1ff;
+}
 
-    h1 { margin: 8px 0 6px; }
-    h2 { font-size: 19px; }
+.top h1{
+  margin:7px 0 3px;
+}
 
-    .muted {
-      color: #526078;
-      line-height: 1.5;
-    }
+.top p{
+  margin:0;
+  color:#d6deea;
+}
 
-    .list { overflow: auto; }
+.top-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 760px;
-    }
+.top-actions a,
+.top-actions button{
+  padding:10px 13px;
+  border-radius:9px;
+  border:1px solid #536178;
+  background:white;
+  color:#172033;
+  text-decoration:none;
+  font-weight:750;
+  cursor:pointer;
+}
 
-    th, td {
-      text-align: left;
-      padding: 11px;
-      border-bottom: 1px solid #e2e8f0;
-      font-size: 14px;
-    }
+.stats{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+  gap:12px;
+  margin-bottom:18px;
+}
 
-    th { background: #f8fafc; }
+.stat{
+  background:white;
+  border:1px solid #dce5f0;
+  border-radius:15px;
+  padding:18px;
+}
 
-    form {
-      display: grid;
-      grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
-      gap: 12px;
-    }
+.stat span{
+  color:#64748b;
+  font-size:13px;
+}
 
-    label {
-      display: block;
-      font-weight: 700;
-      font-size: 13px;
-      margin-bottom: 5px;
-    }
+.stat strong{
+  display:block;
+  font-size:27px;
+  margin-top:6px;
+}
 
-    input, select, button {
-      width: 100%;
-      font: inherit;
-      padding: 11px;
-      border: 1px solid #cbd5e1;
-      border-radius: 9px;
-    }
+.box{
+  background:white;
+  border:1px solid #dce5f0;
+  border-radius:16px;
+  padding:22px;
+  margin-bottom:16px;
+}
 
-    button {
-      background: #245ad6;
-      color: #fff;
-      border-color: #245ad6;
-      font-weight: 750;
-      cursor: pointer;
-    }
+h2{
+  margin-top:0;
+}
 
-    button:disabled {
-      opacity: .6;
-      cursor: not-allowed;
-    }
+.muted{
+  color:#526078;
+  line-height:1.5;
+}
 
-    .delete {
-      background: #b91c1c;
-      border-color: #b91c1c;
-    }
+.msg{
+  white-space:pre-wrap;
+  margin:12px 0;
+  color:#334155;
+}
 
-    .secondary {
-      background: #fff;
-      color: #245ad6;
-    }
+.list{
+  overflow:auto;
+}
 
-    .actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:900px;
+}
 
-    .actions button {
-      width: auto;
-      padding: 7px 10px;
-    }
+th,td{
+  padding:11px;
+  text-align:left;
+  border-bottom:1px solid #e2e8f0;
+  font-size:14px;
+}
 
-    .msg {
-      white-space: pre-wrap;
-      margin: 12px 0;
-    }
+th{
+  background:#f8fafc;
+}
 
-    .wide { grid-column: 1/-1; }
+.status{
+  display:inline-block;
+  padding:5px 8px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+  background:#e8f1ff;
+  color:#214bb5;
+}
 
-    .tiny {
-      font-size: 12px;
-      color: #64748b;
-    }
+form{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:12px;
+}
 
-    a { color: #245ad6; }
-  </style>
+label{
+  display:block;
+  font-size:13px;
+  font-weight:750;
+  margin-bottom:5px;
+}
+
+input,select,button{
+  font:inherit;
+}
+
+input,select{
+  width:100%;
+  padding:11px;
+  border:1px solid #cbd5e1;
+  border-radius:9px;
+}
+
+.btn{
+  padding:10px 13px;
+  border:0;
+  border-radius:9px;
+  background:#245ad6;
+  color:white;
+  font-weight:750;
+  cursor:pointer;
+}
+
+.btn:disabled{
+  opacity:.6;
+}
+
+.delete{
+  background:#b91c1c;
+}
+
+.secondary{
+  background:#eef3ff;
+  color:#214bb5;
+}
+
+.actions{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+}
+
+.actions button{
+  width:auto;
+  padding:7px 10px;
+}
+
+.wide{
+  grid-column:1/-1;
+}
+
+.tiny{
+  font-size:12px;
+  color:#64748b;
+}
+
+@media(max-width:600px){
+  .wrap{padding:12px}
+  .top{padding:18px}
+  .box{padding:16px}
+}
+</style>
 </head>
 
 <body>
 
 <div class="wrap">
 
-  <section class="box">
+<header class="top">
 
-    <div class="brand">LIFFAN · PLATFORM ADMIN</div>
-
-    <h1>School Registry & Access Approval</h1>
-
-    <p class="muted">
-      Approve schools, control subscription expiry and create each school's
-      first administrator account.
-    </p>
-
-    <p>
-      <a href="/role-dashboard.html">← Platform workspace</a>
-      ·
-      <a href="/">Home</a>
-
-      <button
-        id="refresh"
-        type="button"
-        style="width:auto;margin-left:8px"
-      >
-        Refresh
-      </button>
-    </p>
-
-    <div id="status" class="msg" role="status"></div>
-
-    <div class="list">
-
-      <table>
-
-        <thead>
-          <tr>
-            <th>School</th>
-            <th>Status</th>
-            <th>Plan</th>
-            <th>Paid until</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-
-        <tbody id="schools">
-          <tr>
-            <td colspan="5">Loading…</td>
-          </tr>
-        </tbody>
-
-      </table>
-
+  <div>
+    <div class="brand">
+      LIFFAN · PLATFORM ADMIN
     </div>
 
-  </section>
+    <h1>Platform Administration</h1>
 
-
-  <section class="box">
-
-    <h2>Approve School</h2>
-
-    <p class="muted">
-      Select a school, choose its access plan and expiry date,
-      then create the school's administrator login.
+    <p id="adminIdentity">
+      Loading administrator…
     </p>
+  </div>
 
-    <form id="form">
+  <div class="top-actions">
 
-      <div class="wide">
-        <label for="school_id">School</label>
+    <a href="/">
+      Home
+    </a>
 
-        <select id="school_id" required>
-          <option value="">Choose a school</option>
-        </select>
-      </div>
+    <button id="refresh" type="button">
+      Refresh
+    </button>
 
+    <button id="logout" type="button">
+      Sign Out
+    </button>
 
-      <div>
-        <label for="plan">Access plan</label>
+  </div>
 
-        <select id="plan">
-          <option value="MONTHLY">Monthly</option>
-          <option value="TERM">Term</option>
-          <option value="ANNUAL">Annual</option>
-          <option value="CUSTOM">Custom</option>
-        </select>
-      </div>
+</header>
 
 
-      <div>
-        <label for="paid_until">Access expiry date</label>
+<section class="stats">
 
-        <input
-          id="paid_until"
-          type="date"
-          required
-        >
-      </div>
+  <div class="stat">
+    <span>Total Schools</span>
+    <strong id="totalSchools">0</strong>
+  </div>
 
+  <div class="stat">
+    <span>Pending</span>
+    <strong id="pendingSchools">0</strong>
+  </div>
 
-      <div>
-        <label for="admin_name">
-          School administrator name
-        </label>
+  <div class="stat">
+    <span>Active</span>
+    <strong id="activeSchools">0</strong>
+  </div>
 
-        <input
-          id="admin_name"
-          required
-          minlength="2"
-        >
-      </div>
+  <div class="stat">
+    <span>Expired / Suspended</span>
+    <strong id="inactiveSchools">0</strong>
+  </div>
 
+  <div class="stat">
+    <span>Total Students</span>
+    <strong id="totalStudents">0</strong>
+  </div>
 
-      <div>
-        <label for="admin_email">
-          Administrator email
-        </label>
-
-        <input
-          id="admin_email"
-          type="email"
-          required
-        >
-      </div>
+</section>
 
 
-      <div class="wide">
+<section class="box">
 
-        <label for="admin_password">
-          Temporary password
-        </label>
+<h2>School Management</h2>
 
-        <input
-          id="admin_password"
-          type="password"
-          minlength="12"
-          required
-          autocomplete="new-password"
-        >
+<p class="muted">
+Review registered schools, subscription access and expiry.
+The Liffan Platform Administrator controls platform access only.
+Each School Administrator controls their own school's daily operations.
+</p>
 
-        <div class="tiny">
-          Minimum 12 characters. Give this password securely to the school administrator.
-        </div>
+<div id="statusBox" class="msg">
+Loading schools…
+</div>
 
-      </div>
+<div class="list">
+
+<table>
+
+<thead>
+<tr>
+<th>School</th>
+<th>Status</th>
+<th>Students</th>
+<th>Plan</th>
+<th>Paid Until</th>
+<th>Actions</th>
+</tr>
+</thead>
+
+<tbody id="schools">
+
+<tr>
+<td colspan="6">Loading…</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</section>
 
 
-      <div class="wide">
+<section class="box">
 
-        <button id="approve" type="submit">
-          Approve & Activate School
-        </button>
+<h2>Approve / Activate School</h2>
 
-      </div>
+<p class="muted">
+Approve a school, set its subscription period and create
+the school's first administrator account.
+</p>
 
-    </form>
+<form id="approvalForm">
 
-    <div id="result" class="msg"></div>
+<div class="wide">
 
-  </section>
+<label for="school_id">
+School
+</label>
+
+<select id="school_id" required>
+<option value="">
+Choose a school
+</option>
+</select>
+
+</div>
+
+
+<div>
+
+<label for="plan">
+Subscription Plan
+</label>
+
+<select id="plan">
+
+<option value="MONTHLY">
+Monthly
+</option>
+
+<option value="TERM">
+Term
+</option>
+
+<option value="ANNUAL">
+Annual
+</option>
+
+<option value="CUSTOM">
+Custom
+</option>
+
+</select>
+
+</div>
+
+
+<div>
+
+<label for="paid_until">
+Access Expiry
+</label>
+
+<input
+id="paid_until"
+type="date"
+required
+>
+
+</div>
+
+
+<div>
+
+<label for="admin_name">
+School Admin Name
+</label>
+
+<input
+id="admin_name"
+minlength="2"
+required
+>
+
+</div>
+
+
+<div>
+
+<label for="admin_email">
+School Admin Email
+</label>
+
+<input
+id="admin_email"
+type="email"
+required
+>
+
+</div>
+
+
+<div class="wide">
+
+<label for="admin_password">
+Temporary Password
+</label>
+
+<input
+id="admin_password"
+type="password"
+minlength="12"
+required
+autocomplete="new-password"
+>
+
+<div class="tiny">
+Minimum 12 characters. Give the credentials securely
+to the school's administrator.
+</div>
+
+</div>
+
+
+<div class="wide">
+
+<button
+class="btn"
+id="approve"
+type="submit"
+>
+Approve & Activate School
+</button>
+
+</div>
+
+</form>
+
+<div id="result" class="msg"></div>
+
+</section>
+
+
+<section class="box">
+
+<h2>Platform Responsibilities</h2>
+
+<p class="muted">
+
+Liffan Platform Admin manages school approval,
+subscription status, expiry, activation and suspension.
+
+School Admin manages students, Secretary,
+Finance Office, Teachers, Parents, academics,
+attendance, fees and school records.
+
+</p>
+
+</section>
 
 </div>
 
 
 <script>
 
-const tbody = document.querySelector('#schools');
-const schoolSelect = document.querySelector('#school_id');
-const statusBox = document.querySelector('#status');
-const result = document.querySelector('#result');
-const form = document.querySelector('#form');
+const tbody =
+  document.querySelector('#schools');
+
+const schoolSelect =
+  document.querySelector('#school_id');
+
+const statusBox =
+  document.querySelector('#statusBox');
+
+const result =
+  document.querySelector('#result');
+
+const form =
+  document.querySelector('#approvalForm');
 
 let allSchools = [];
 
 
-function esc(value) {
+function esc(value){
 
-  return String(value ?? '').replace(
-    /[&<>"']/g,
-    c => ({
-      '&':'&amp;',
-      '<':'&lt;',
-      '>':'&gt;',
-      '"':'&quot;',
-      "'":'&#39;'
-    }[c])
-  );
-
-}
-
-
-async function load() {
-
-  statusBox.textContent = 'Loading school registry…';
-
-  try {
-
-    const meResponse = await fetch(
-      '/api/auth/me',
-      {
-        credentials: 'same-origin',
-        cache: 'no-store'
-      }
-    );
-
-    const me = await meResponse.json().catch(() => ({}));
-
-    if (!meResponse.ok || !me.user) {
-      location.href = '/school-login.html';
-      return;
-    }
-
-    if (me.user.role !== 'PLATFORM_ADMIN') {
-      statusBox.textContent =
-        'Access denied. Platform administrator only.';
-      return;
-    }
-
-
-    const response = await fetch(
-      '/api/schools',
-      {
-        credentials: 'same-origin',
-        cache: 'no-store'
-      }
-    );
-
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      throw new Error(
-        data.error || 'Could not load school registry.'
-      );
-    }
-
-
-    allSchools = data.schools || [];
-
-
-    tbody.innerHTML = allSchools.map(s => `
-
-      <tr>
-
-        <td>
-          <strong>${esc(s.name)}</strong>
-        </td>
-
-        <td>
-          ${esc(s.status || '')}
-        </td>
-
-        <td>
-          ${esc(s.plan || '')}
-        </td>
-
-        <td>
-          ${esc(s.paid_until || '')}
-        </td>
-
-        <td>
-
-          <div class="actions">
-
-            <button
-              type="button"
-              class="selectSchool"
-              data-id="${esc(s.id)}"
-            >
-              Select
-            </button>
-
-            <button
-              type="button"
-              class="delete deleteSchool"
-              data-id="${esc(s.id)}"
-              data-name="${esc(s.name)}"
-            >
-              Delete
-            </button>
-
-          </div>
-
-        </td>
-
-      </tr>
-
-    `).join('') || `
-
-      <tr>
-        <td colspan="5">
-          No school applications found.
-        </td>
-      </tr>
-
-    `;
-
-
-    schoolSelect.innerHTML =
-      '<option value="">Choose a school</option>' +
-
-      allSchools.map(s => `
-
-        <option value="${esc(s.id)}">
-          ${esc(s.name)} — ${esc(s.status)}
-        </option>
-
-      `).join('');
-
-
-    statusBox.textContent =
-      `Loaded ${allSchools.length} school(s).`;
-
-  }
-
-  catch (error) {
-
-    statusBox.textContent =
-      error.message || 'Could not load school registry.';
-
-  }
+return String(value ?? '')
+.replace(
+  /[&<>"']/g,
+  c => ({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":'&#39;'
+  }[c])
+);
 
 }
 
 
+function updateStats(){
 
-tbody.addEventListener('click', async event => {
+const total =
+  allSchools.length;
 
-  const selectButton =
-    event.target.closest('.selectSchool');
+const pending =
+  allSchools.filter(
+    school =>
+      String(school.status)
+      .toLowerCase() === 'pending'
+  ).length;
 
-  if (selectButton) {
+const active =
+  allSchools.filter(
+    school =>
+      String(
+        school.access_status ||
+        school.status
+      ).toUpperCase() === 'ACTIVE'
+  ).length;
 
-    schoolSelect.value =
-      selectButton.dataset.id;
+const inactive =
+  allSchools.filter(
+    school => {
 
-    const school = allSchools.find(
-      s => String(s.id) ===
-           String(selectButton.dataset.id)
-    );
+      const state =
+        String(
+          school.access_status ||
+          ''
+        ).toUpperCase();
 
-    result.textContent =
-      `Selected ${school?.name || 'school'}.`;
-
-    form.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start'
-    });
-
-    return;
-  }
-
-
-  const deleteButton =
-    event.target.closest('.deleteSchool');
-
-  if (!deleteButton) return;
-
-
-  const schoolId =
-    deleteButton.dataset.id;
-
-  const schoolName =
-    deleteButton.dataset.name || 'this school';
-
-
-  const confirmed = confirm(
-
-    `Permanently delete ${schoolName}?\n\n` +
-
-    `The school's access account will be removed. ` +
-
-    `This action cannot be undone.`
-
-  );
-
-
-  if (!confirmed) return;
-
-
-  deleteButton.disabled = true;
-
-  result.textContent =
-    `Deleting ${schoolName}…`;
-
-
-  try {
-
-    const response = await fetch(
-      '/api/schools/delete',
-      {
-        method: 'POST',
-        credentials: 'same-origin',
-
-        headers: {
-          'Content-Type': 'application/json'
-        },
-
-        body: JSON.stringify({
-          school_id: schoolId
-        })
-      }
-    );
-
-
-    const data =
-      await response.json().catch(() => ({}));
-
-
-    if (!response.ok) {
-
-      throw new Error(
-        data.error ||
-        `Delete failed (${response.status}).`
+      return (
+        state === 'SUSPENDED' ||
+        state === 'EXPIRED'
       );
 
     }
+  ).length;
+
+const students =
+  allSchools.reduce(
+    (sum,school) =>
+      sum +
+      Number(
+        school.student_count || 0
+      ),
+    0
+  );
 
 
-    result.textContent =
-      data.message ||
-      `${schoolName} deleted successfully.`;
+document.querySelector(
+  '#totalSchools'
+).textContent = total;
+
+document.querySelector(
+  '#pendingSchools'
+).textContent = pending;
+
+document.querySelector(
+  '#activeSchools'
+).textContent = active;
+
+document.querySelector(
+  '#inactiveSchools'
+).textContent = inactive;
+
+document.querySelector(
+  '#totalStudents'
+).textContent = students;
+
+}
 
 
-    await load();
+async function load(){
 
-  }
+statusBox.textContent =
+  'Loading platform information…';
 
-  catch (error) {
+try{
 
-    result.textContent =
-      error.message ||
-      'School could not be deleted.';
+const meResponse =
+  await fetch(
+    '/api/auth/me',
+    {
+      credentials:'same-origin',
+      cache:'no-store'
+    }
+  );
 
-    deleteButton.disabled = false;
+const me =
+  await meResponse.json()
+  .catch(()=>({}));
 
-  }
+if(
+  !meResponse.ok ||
+  !me.user
+){
 
+location.href =
+  '/school-login.html';
+
+return;
+
+}
+
+if(
+  me.user.role !==
+  'PLATFORM_ADMIN'
+){
+
+location.href =
+  '/role-dashboard.html';
+
+return;
+
+}
+
+
+document.querySelector(
+  '#adminIdentity'
+).textContent =
+  `${me.user.full_name} · Platform Administrator`;
+
+
+const response =
+  await fetch(
+    '/api/schools',
+    {
+      credentials:'same-origin',
+      cache:'no-store'
+    }
+  );
+
+const data =
+  await response.json()
+  .catch(()=>({}));
+
+if(!response.ok){
+
+throw new Error(
+  data.error ||
+  'Could not load schools.'
+);
+
+}
+
+
+allSchools =
+  data.schools || [];
+
+
+tbody.innerHTML =
+  allSchools.map(
+    school => `
+
+<tr>
+
+<td>
+<strong>
+${esc(school.name)}
+</strong>
+
+<div class="tiny">
+${esc(school.location || '')}
+</div>
+</td>
+
+<td>
+<span class="status">
+${esc(
+  school.access_status ||
+  school.status ||
+  ''
+)}
+</span>
+</td>
+
+<td>
+${esc(
+  school.student_count || 0
+)}
+</td>
+
+<td>
+${esc(
+  school.plan || '—'
+)}
+</td>
+
+<td>
+${esc(
+  school.paid_until || '—'
+)}
+</td>
+
+<td>
+
+<div class="actions">
+
+<button
+type="button"
+class="btn selectSchool"
+data-id="${esc(school.id)}"
+>
+Manage
+</button>
+
+<button
+type="button"
+class="btn delete deleteSchool"
+data-id="${esc(school.id)}"
+data-name="${esc(school.name)}"
+>
+Delete
+</button>
+
+</div>
+
+</td>
+
+</tr>
+
+`
+  ).join('') ||
+
+`
+<tr>
+<td colspan="6">
+No schools registered yet.
+</td>
+</tr>
+`;
+
+
+schoolSelect.innerHTML =
+
+'<option value="">Choose a school</option>' +
+
+allSchools.map(
+school => `
+
+<option value="${esc(school.id)}">
+${esc(school.name)}
+—
+${esc(school.status || '')}
+</option>
+
+`
+).join('');
+
+
+updateStats();
+
+statusBox.textContent =
+  `Loaded ${allSchools.length} school(s).`;
+
+}
+
+catch(error){
+
+statusBox.textContent =
+  error.message ||
+  'Could not load platform dashboard.';
+
+}
+
+}
+
+
+
+tbody.addEventListener(
+'click',
+async event => {
+
+const selectButton =
+  event.target.closest(
+    '.selectSchool'
+  );
+
+if(selectButton){
+
+schoolSelect.value =
+  selectButton.dataset.id;
+
+const school =
+  allSchools.find(
+    item =>
+      String(item.id) ===
+      String(
+        selectButton.dataset.id
+      )
+  );
+
+if(school){
+
+document.querySelector(
+  '#plan'
+).value =
+  school.plan ||
+  'MONTHLY';
+
+if(school.paid_until){
+
+document.querySelector(
+  '#paid_until'
+).value =
+  String(
+    school.paid_until
+  ).slice(0,10);
+
+}
+
+}
+
+result.textContent =
+  `Managing ${school?.name || 'school'}.`;
+
+form.scrollIntoView({
+  behavior:'smooth',
+  block:'start'
 });
 
+return;
+
+}
 
 
-form.addEventListener(
-  'submit',
-  async event => {
+const deleteButton =
+  event.target.closest(
+    '.deleteSchool'
+  );
 
-    event.preventDefault();
-
-
-    const button =
-      document.querySelector('#approve');
-
-    button.disabled = true;
-
-    result.textContent =
-      'Approving school…';
+if(!deleteButton) return;
 
 
-    try {
+const schoolId =
+  deleteButton.dataset.id;
 
-      const body = {
-
-        school_id:
-          schoolSelect.value,
-
-        plan:
-          document.querySelector('#plan').value,
-
-        paid_until:
-          document.querySelector('#paid_until').value,
-
-        admin_name:
-          document.querySelector('#admin_name')
-            .value.trim(),
-
-        admin_email:
-          document.querySelector('#admin_email')
-            .value.trim(),
-
-        admin_password:
-          document.querySelector('#admin_password')
-            .value
-
-      };
+const schoolName =
+  deleteButton.dataset.name ||
+  'this school';
 
 
-      const response = await fetch(
-        '/api/schools/approve',
-        {
-          method: 'POST',
-
-          credentials: 'same-origin',
-
-          headers: {
-            'Content-Type': 'application/json'
-          },
-
-          body: JSON.stringify(body)
-        }
-      );
+if(
+  !confirm(
+    `Permanently delete ${schoolName}?`
+  )
+){
+return;
+}
 
 
-      const data =
-        await response.json().catch(() => ({}));
+deleteButton.disabled = true;
+
+result.textContent =
+  `Deleting ${schoolName}…`;
 
 
-      if (!response.ok) {
+try{
 
-        throw new Error(
-          data.error ||
-          `Approval failed (${response.status}).`
-        );
+const response =
+  await fetch(
+    '/api/schools/delete',
+    {
+      method:'POST',
 
-      }
+      credentials:'same-origin',
 
+      headers:{
+        'Content-Type':
+          'application/json'
+      },
 
-      form.reset();
-
-
-      result.textContent =
-        `Success: ${data.message} ` +
-        `Access through ${data.paid_until}.`;
-
-
-      await load();
-
+      body:JSON.stringify({
+        school_id:schoolId
+      })
     }
+  );
 
-    catch (error) {
 
-      result.textContent =
-        error.message ||
-        'Approval failed.';
+const data =
+  await response.json()
+  .catch(()=>({}));
 
-    }
 
-    finally {
+if(!response.ok){
 
-      button.disabled = false;
+throw new Error(
+  data.error ||
+  'School could not be deleted.'
+);
 
-    }
+}
 
-  }
+
+result.textContent =
+  data.message ||
+  `${schoolName} deleted.`;
+
+await load();
+
+}
+
+catch(error){
+
+result.textContent =
+  error.message ||
+  'Delete failed.';
+
+deleteButton.disabled =
+  false;
+
+}
+
+}
 );
 
 
 
-document
-  .querySelector('#refresh')
-  .addEventListener('click', load);
+form.addEventListener(
+'submit',
+async event => {
+
+event.preventDefault();
+
+const button =
+  document.querySelector(
+    '#approve'
+  );
+
+button.disabled = true;
+
+result.textContent =
+  'Activating school…';
+
+
+try{
+
+const body = {
+
+school_id:
+  schoolSelect.value,
+
+plan:
+  document.querySelector(
+    '#plan'
+  ).value,
+
+paid_until:
+  document.querySelector(
+    '#paid_until'
+  ).value,
+
+admin_name:
+  document.querySelector(
+    '#admin_name'
+  ).value.trim(),
+
+admin_email:
+  document.querySelector(
+    '#admin_email'
+  ).value.trim(),
+
+admin_password:
+  document.querySelector(
+    '#admin_password'
+  ).value
+
+};
+
+
+const response =
+  await fetch(
+    '/api/schools/approve',
+    {
+      method:'POST',
+
+      credentials:'same-origin',
+
+      headers:{
+        'Content-Type':
+          'application/json'
+      },
+
+      body:
+        JSON.stringify(body)
+    }
+  );
+
+
+const data =
+  await response.json()
+  .catch(()=>({}));
+
+
+if(!response.ok){
+
+throw new Error(
+  data.error ||
+  `Approval failed (${response.status}).`
+);
+
+}
+
+
+result.textContent =
+  data.message ||
+  'School activated successfully.';
+
+
+form.reset();
+
+await load();
+
+}
+
+catch(error){
+
+result.textContent =
+  error.message ||
+  'School approval failed.';
+
+}
+
+finally{
+
+button.disabled = false;
+
+}
+
+}
+);
+
+
+
+document.querySelector(
+'#refresh'
+).addEventListener(
+'click',
+load
+);
+
+
+document.querySelector(
+'#logout'
+).addEventListener(
+'click',
+async()=>{
+
+await fetch(
+  '/api/auth/logout',
+  {
+    method:'POST',
+    credentials:'same-origin'
+  }
+).catch(()=>{});
+
+location.href = '/';
+
+}
+);
 
 
 load();
