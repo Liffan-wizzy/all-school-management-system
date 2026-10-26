@@ -1579,78 +1579,142 @@ say(
 }
 
 
-(async()=>{
+(async () => {
 
-try{
+  try {
 
-const data =
-  await api(
-    '/api/auth/me'
-  );
+    /*
+     * STEP 1:
+     * Verify the login session only.
+     */
+    const data = await api('/api/auth/me');
 
-me =
-  data.user;
+    me = data.user;
 
+    if (!me) {
+      location.replace('/school-login.html');
+      return;
+    }
 
-if(!me){
+    /*
+     * Platform Admin does not use
+     * the school workspace.
+     */
+    if (me.role === 'PLATFORM_ADMIN') {
+      location.replace('/platform-schools.html');
+      return;
+    }
 
-location.href =
-  '/school-login.html';
+    /*
+     * School users must belong
+     * to a school.
+     */
+    if (!me.school_id) {
+      $('#moduleTitle').textContent =
+        'Account configuration problem';
 
-return;
+      $('#description').textContent =
+        'Your account is signed in but is not assigned to a school.';
 
-}
+      $('#output').textContent =
+        JSON.stringify(me, null, 2);
 
+      return;
+    }
 
-/*
-Platform administrator belongs to the
-Liffan platform, not an individual school.
-*/
-if(
-  me.role === 'PLATFORM_ADMIN'
-){
+    /*
+     * IMPORTANT:
+     * From this point onward we DO NOT
+     * redirect to login if a dashboard
+     * module has an error.
+     */
 
-location.replace(
-  '/platform-schools.html'
-);
+    $('#identity').textContent =
+      `${me.full_name} · ${me.role}`;
 
-return;
+    $('#title').textContent =
+      'School Dashboard';
 
-}
+    /*
+     * School profile failure must not
+     * destroy a valid login session.
+     */
+    try {
+      await loadSchoolIdentity();
+    } catch (error) {
+      console.error(
+        'School identity error:',
+        error
+      );
+    }
 
+    drawNav();
 
-if(!me.school_id){
+    try {
+      await open('home');
+    } catch (error) {
 
-throw new Error(
-  'This account is not assigned to a school.'
-);
+      console.error(
+        'Workspace loading error:',
+        error
+      );
 
-}
+      $('#moduleTitle').textContent =
+        'School Dashboard';
 
+      $('#description').textContent =
+        'You are signed in. A dashboard module could not be loaded.';
 
-await loadSchoolIdentity();
+      say(
+        error.message,
+        true
+      );
 
-drawNav();
+      $('#output').textContent =
+        JSON.stringify(
+          {
+            signed_in: true,
+            user: me
+          },
+          null,
+          2
+        );
+    }
 
-await open('home');
+  } catch (error) {
 
+    /*
+     * Only /api/auth/me failure reaches here.
+     */
+    console.error(
+      'Authentication check failed:',
+      error
+    );
 
-}catch(error){
+    $('#moduleTitle').textContent =
+      'Sign-in problem';
 
-console.error(error);
+    $('#description').textContent =
+      'The server could not verify your login session.';
 
-location.href =
-  '/school-login.html';
+    say(
+      error.message,
+      true
+    );
 
-}
+    $('#output').textContent =
+      'Authentication failed.';
+
+    /*
+     * DO NOT automatically redirect.
+     * This lets us see the real server error.
+     */
+  }
 
 })();
-
-
-$('#refresh')
 .addEventListener(
 'click',
-() =>
+() =>s
   load()
   .catch(
     error =>
