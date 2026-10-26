@@ -30,7 +30,7 @@ export async function onRequestPost({ request, env }) {
     if (!schoolId || fullName.length < 2 || fullName.length > 120 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return json({ error: 'Choose a school and enter your full name and a valid email.' }, 400);
     }
-    if (!['SECRETARY', 'TEACHER', 'PARENT'].includes(role)) {
+    if (!['SECRETARY', 'FINANCE_OFFICE', 'TEACHER', 'PARENT'].includes(role)) {
       return json({ error: 'Public registration is only for secretary, teacher, or parent access. School administrators are appointed by the platform.' }, 400);
     }
     if (typeof password !== 'string' || password.length < 12 || password.length > 200) {

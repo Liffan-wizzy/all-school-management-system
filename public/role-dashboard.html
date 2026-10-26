@@ -1,18 +1,564 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>My workspace · Liffan</title>
-<style>:root{font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:#172033;background:#f2f6fb}*{box-sizing:border-box}body{margin:0;padding:22px}.wrap{width:min(100%,980px);margin:auto}.top,.card{background:#fff;border:1px solid #dce5f0;border-radius:16px;padding:22px}.top{display:flex;gap:18px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:16px}.brand{font-size:12px;font-weight:850;letter-spacing:.12em;color:#245ad6}h1{font-size:27px;margin:8px 0}p{color:#526078;line-height:1.5}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}.card h2{font-size:18px;margin:4px 0 8px}.card a,.btn{display:inline-block;margin-top:8px;padding:10px 13px;background:#245ad6;color:#fff;text-decoration:none;border:0;border-radius:9px;font-weight:700;cursor:pointer}.minor{background:#edf2ff;color:#234eab}.pill{display:inline-block;padding:5px 8px;background:#e8f1ff;color:#214bb5;border-radius:999px;font-size:12px;font-weight:800}button{font:inherit}.status{margin:12px 0}.logout{padding:9px 12px;border:1px solid #d3dce9;background:#fff;border-radius:9px;cursor:pointer}.foot{font-size:13px;color:#64748b;margin-top:18px}</style></head>
-<body><div class="wrap"><header class="top"><div><div class="brand">LIFFAN · ALL-SCHOOL</div><h1 id="welcome">Loading your workspace…</h1><p id="identity">Checking signed-in account</p></div><button class="logout" id="logout">Sign out</button></header><div id="cards" class="grid"></div><p class="foot">Your role controls the areas you can access. Features without a connected, school-scoped API are not enabled for real school records yet.</p></div>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Liffan Workspace</title>
+
+  <style>
+    :root{
+      font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;
+      color:#172033;
+      background:#f2f6fb;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      padding:22px;
+    }
+
+    .wrap{
+      width:min(100%,1050px);
+      margin:auto;
+    }
+
+    .top,.card{
+      background:#fff;
+      border:1px solid #dce5f0;
+      border-radius:16px;
+    }
+
+    .top{
+      padding:22px;
+      display:flex;
+      gap:18px;
+      justify-content:space-between;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-bottom:16px;
+    }
+
+    .brand{
+      font-size:12px;
+      font-weight:850;
+      letter-spacing:.12em;
+      color:#245ad6;
+    }
+
+    h1{
+      font-size:27px;
+      margin:8px 0;
+    }
+
+    p{
+      color:#526078;
+      line-height:1.5;
+    }
+
+    .actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .home,.logout{
+      padding:9px 13px;
+      border-radius:9px;
+      font-weight:700;
+      text-decoration:none;
+      cursor:pointer;
+      font:inherit;
+    }
+
+    .home{
+      background:#245ad6;
+      color:white;
+      border:1px solid #245ad6;
+    }
+
+    .logout{
+      background:white;
+      color:#172033;
+      border:1px solid #d3dce9;
+    }
+
+    .rolebox{
+      background:#e8f1ff;
+      border:1px solid #c9dcff;
+      border-radius:14px;
+      padding:15px 18px;
+      margin-bottom:16px;
+    }
+
+    .rolebox strong{
+      color:#214bb5;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+      gap:14px;
+    }
+
+    .card{
+      padding:20px;
+    }
+
+    .card h2{
+      font-size:18px;
+      margin:8px 0;
+    }
+
+    .card a{
+      display:inline-block;
+      margin-top:8px;
+      padding:10px 13px;
+      background:#245ad6;
+      color:#fff;
+      text-decoration:none;
+      border-radius:9px;
+      font-weight:700;
+    }
+
+    .pill{
+      display:inline-block;
+      padding:5px 8px;
+      background:#e8f1ff;
+      color:#214bb5;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .foot{
+      font-size:13px;
+      color:#64748b;
+      margin-top:18px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+  <header class="top">
+
+    <div>
+      <div class="brand">LIFFAN · ALL-SCHOOL PLATFORM</div>
+
+      <h1 id="welcome">
+        Loading your workspace…
+      </h1>
+
+      <p id="identity">
+        Checking signed-in account…
+      </p>
+    </div>
+
+    <div class="actions">
+      <a class="home" href="/">Home</a>
+      <button class="logout" id="logout">
+        Sign out
+      </button>
+    </div>
+
+  </header>
+
+
+  <section class="rolebox">
+    <strong id="roleTitle">
+      Checking permissions…
+    </strong>
+
+    <div id="roleDescription">
+      Your account permissions are being loaded.
+    </div>
+  </section>
+
+
+  <div id="cards" class="grid"></div>
+
+
+  <p class="foot">
+    Liffan automatically restricts users to their assigned role
+    and school.
+  </p>
+
+</div>
+
+
 <script>
-const cards=document.querySelector('#cards');
-function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-const definitions={
- PLATFORM_ADMIN:[['School applications & paid access','Approve schools, set plan expiry, and create the first school administrator.','/platform-schools.html'],['Account requests','View registration requests across schools.','/role-review.html']],
- SCHOOL_ADMIN:[['School operations workspace','Manage assigned subjects, marks, attendance, fees, notices and staff invitations.','/school-workspace.html'],['Registration approvals','Approve or reject teachers, secretaries and parent requests for your school.','/role-review.html'],['Student records','View students and add records according to your permissions.','/students.html'],['School dashboard','Open the existing school dashboard.','/']],
- SECRETARY:[['School operations workspace','Manage permitted attendance, fees, notices and view academics.','/school-workspace.html'],['Student records','Add and view records for your school.','/students.html'],['School dashboard','Open the existing school dashboard.','/']],
- TEACHER:[['School operations workspace','Enter marks and attendance for your assigned classes.','/school-workspace.html'],['Student list','View student records for your school.','/students.html']],
- PARENT:[['Parent dashboard','View linked-child marks, attendance, fee records and school notices.','/school-workspace.html'],['My linked children','View only students that the school has verified and linked to your account.','/parent-children.html']]
+
+const cards = document.querySelector('#cards');
+
+function esc(value){
+  return String(value ?? '').replace(
+    /[&<>"']/g,
+    character => ({
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;',
+      "'":'&#39;'
+    }[character])
+  );
+}
+
+
+const roleInformation = {
+
+  PLATFORM_ADMIN:{
+    title:'Liffan Platform Administrator',
+    description:
+      'You control the Liffan platform, school activation, subscriptions and access. Individual schools manage their own daily operations.'
+  },
+
+  SCHOOL_ADMIN:{
+    title:'School Administrator',
+    description:
+      'You are the administrator of this school. You control your school records and approve the Secretary, Finance Office, Teachers and Parents.'
+  },
+
+  SECRETARY:{
+    title:'School Secretary',
+    description:
+      'You manage admissions, student records, administrative records and school communication assigned by your School Administrator.'
+  },
+
+  FINANCE_OFFICE:{
+    title:'Finance Office',
+    description:
+      'You manage school fees, payments, balances, receipts and financial records for this school.'
+  },
+
+  TEACHER:{
+    title:'Teacher',
+    description:
+      'You manage academic work for your assigned classes and subjects, including marks and attendance.'
+  },
+
+  PARENT:{
+    title:'Parent Portal',
+    description:
+      'You can view information belonging only to the child or children linked to your account.'
+  }
+
 };
-function render(user){document.querySelector('#welcome').textContent=`Welcome, ${user.full_name}`;document.querySelector('#identity').textContent=`${user.email} · ${user.role}${user.school_id?` · School ${user.school_id}`:''}`;const list=definitions[user.role]||[];cards.innerHTML=list.map(([title,desc,href,active=true])=>`<section class="card"><span class="pill">${active?'AVAILABLE':'NOT CONNECTED'}</span><h2>${esc(title)}</h2><p>${esc(desc)}</p><a class="${active?'':'minor'}" href="${esc(href)}">${active?'Open':'View dashboard'}</a></section>`).join('');}
-(async()=>{try{const r=await fetch('/api/auth/me',{credentials:'same-origin',cache:'no-store'});const d=await r.json().catch(()=>({}));if(!r.ok||!d.user){location.href='/school-login.html';return;}render(d.user);}catch{location.href='/school-login.html';}})();
-document.querySelector('#logout').addEventListener('click',async()=>{await fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'}).catch(()=>{});location.href='/school-login.html';});
-</script></body></html>
+
+
+const definitions = {
+
+  PLATFORM_ADMIN:[
+    [
+      'Schools',
+      'Approve schools, activate access, manage plans and expiry.',
+      '/platform-schools.html'
+    ],
+    [
+      'School applications',
+      'View schools applying to join the Liffan platform.',
+      '/platform-schools.html'
+    ]
+  ],
+
+
+  SCHOOL_ADMIN:[
+    [
+      'School Dashboard',
+      'Open and manage your school operations.',
+      '/school-workspace.html'
+    ],
+
+    [
+      'Staff & User Approvals',
+      'Approve Secretary, Finance Office, Teacher and Parent accounts.',
+      '/role-review.html'
+    ],
+
+    [
+      'Students',
+      'Manage students belonging to your school.',
+      '/students.html'
+    ],
+
+    [
+      'Admissions',
+      'Manage new student admissions and records.',
+      '/school-workspace.html'
+    ],
+
+    [
+      'Academics',
+      'Monitor subjects, marks, examinations and results.',
+      '/school-workspace.html'
+    ],
+
+    [
+      'Attendance',
+      'Monitor student attendance records.',
+      '/school-workspace.html'
+    ],
+
+    [
+      'Finance',
+      'Monitor school fees, payments and balances.',
+      '/school-workspace.html'
+    ],
+
+    [
+      'Reports',
+      'Access school operational and academic reports.',
+      '/school-workspace.html'
+    ]
+  ],
+
+
+  SECRETARY:[
+    [
+      'Administration',
+      'Open the school administration workspace.',
+      '/school-workspace.html'
+    ],
+
+    [
+      'Admissions',
+      'Manage permitted admission records.',
+      '/school-workspace.html'
+    ],
+
+    [
+      'Students',
+      'Add and manage permitted student records.',
+      '/students.html'
+    ],
+
+    [
+      'Announcements',
+      'Manage school notices and communication.',
+      '/school-workspace.html'
+    ]
+  ],
+
+
+  FINANCE_OFFICE:[
+    [
+      'Finance Dashboard',
+      'Open the school finance workspace.',
+      '/school-workspace.html'
+    ],
+
+    [
+      'School Fees',
+      'Manage student fee balances and charges.',
+      '/school-workspace.html'
+    ],
+
+    [
+      'Payments',
+      'Record and review school fee payments.',
+      '/school-workspace.html'
+    ],
+
+    [
+      'Financial Reports',
+      'View permitted school financial reports.',
+      '/school-workspace.html'
+    ]
+  ],
+
+
+  TEACHER:[
+    [
+      'Teacher Workspace',
+      'Open your academic workspace.',
+      '/school-workspace.html'
+    ],
+
+    [
+      'Students',
+      'View students in your permitted classes.',
+      '/students.html'
+    ],
+
+    [
+      'Marks & Results',
+      'Enter marks for assigned subjects and classes.',
+      '/school-workspace.html'
+    ],
+
+    [
+      'Attendance',
+      'Record attendance for permitted classes.',
+      '/school-workspace.html'
+    ]
+  ],
+
+
+  PARENT:[
+    [
+      'Parent Dashboard',
+      'View your linked child information.',
+      '/school-workspace.html'
+    ],
+
+    [
+      'My Children',
+      'View only children verified and linked to your account.',
+      '/parent-children.html'
+    ],
+
+    [
+      'Results',
+      'View approved academic results for your child.',
+      '/school-workspace.html'
+    ],
+
+    [
+      'Attendance',
+      'View your child attendance records.',
+      '/school-workspace.html'
+    ],
+
+    [
+      'Fees',
+      'View fee balances and payment records for your child.',
+      '/school-workspace.html'
+    ],
+
+    [
+      'Announcements',
+      'Read school announcements available to parents.',
+      '/school-workspace.html'
+    ]
+  ]
+
+};
+
+
+function render(user){
+
+  document.querySelector('#welcome').textContent =
+    `Welcome, ${user.full_name}`;
+
+  document.querySelector('#identity').textContent =
+    `${user.email} · ${user.role}`;
+
+  const information =
+    roleInformation[user.role] || {
+      title:'Liffan User',
+      description:'Your account has limited access.'
+    };
+
+  document.querySelector('#roleTitle').textContent =
+    information.title;
+
+  document.querySelector('#roleDescription').textContent =
+    information.description;
+
+  const list = definitions[user.role] || [];
+
+  if(!list.length){
+    cards.innerHTML = `
+      <section class="card">
+        <span class="pill">ACCOUNT ACTIVE</span>
+
+        <h2>No workspace assigned</h2>
+
+        <p>
+          Contact your school administrator.
+        </p>
+      </section>
+    `;
+
+    return;
+  }
+
+  cards.innerHTML = list.map(
+    ([title,description,href]) => `
+      <section class="card">
+
+        <span class="pill">
+          AVAILABLE
+        </span>
+
+        <h2>
+          ${esc(title)}
+        </h2>
+
+        <p>
+          ${esc(description)}
+        </p>
+
+        <a href="${esc(href)}">
+          Open
+        </a>
+
+      </section>
+    `
+  ).join('');
+
+}
+
+
+(async()=>{
+
+  try{
+
+    const response = await fetch(
+      '/api/auth/me',
+      {
+        credentials:'same-origin',
+        cache:'no-store'
+      }
+    );
+
+    const data =
+      await response.json().catch(()=>({}));
+
+    if(!response.ok || !data.user){
+
+      location.href =
+        '/school-login.html';
+
+      return;
+    }
+
+    render(data.user);
+
+  }catch(error){
+
+    location.href =
+      '/school-login.html';
+
+  }
+
+})();
+
+
+document
+  .querySelector('#logout')
+  .addEventListener(
+    'click',
+    async()=>{
+
+      await fetch(
+        '/api/auth/logout',
+        {
+          method:'POST',
+          credentials:'same-origin'
+        }
+      ).catch(()=>{});
+
+      location.href =
+        '/school-login.html';
+
+    }
+  );
+
+</script>
+
+</body>
+</html>
