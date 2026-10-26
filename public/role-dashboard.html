@@ -1,562 +1,184 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Liffan Workspace</title>
 
-  <style>
-    :root{
-      font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;
-      color:#172033;
-      background:#f2f6fb;
-    }
+<meta charset="utf-8">
 
-    *{box-sizing:border-box}
+<meta
+name="viewport"
+content="width=device-width,initial-scale=1">
 
-    body{
-      margin:0;
-      padding:22px;
-    }
+<title>Opening Workspace · Liffan</title>
 
-    .wrap{
-      width:min(100%,1050px);
-      margin:auto;
-    }
+<style>
 
-    .top,.card{
-      background:#fff;
-      border:1px solid #dce5f0;
-      border-radius:16px;
-    }
+:root{
+  font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;
+  background:#f2f6fb;
+  color:#172033;
+}
 
-    .top{
-      padding:22px;
-      display:flex;
-      gap:18px;
-      justify-content:space-between;
-      align-items:center;
-      flex-wrap:wrap;
-      margin-bottom:16px;
-    }
+body{
+  margin:0;
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  padding:20px;
+}
 
-    .brand{
-      font-size:12px;
-      font-weight:850;
-      letter-spacing:.12em;
-      color:#245ad6;
-    }
+main{
+  width:min(100%,420px);
+  background:white;
+  border:1px solid #dce5f0;
+  border-radius:18px;
+  padding:30px;
+  text-align:center;
+}
 
-    h1{
-      font-size:27px;
-      margin:8px 0;
-    }
+.brand{
+  color:#245ad6;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.13em;
+}
 
-    p{
-      color:#526078;
-      line-height:1.5;
-    }
+h1{
+  margin:12px 0;
+}
 
-    .actions{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-    }
+p{
+  color:#526078;
+  line-height:1.5;
+}
 
-    .home,.logout{
-      padding:9px 13px;
-      border-radius:9px;
-      font-weight:700;
-      text-decoration:none;
-      cursor:pointer;
-      font:inherit;
-    }
+a{
+  color:#245ad6;
+}
 
-    .home{
-      background:#245ad6;
-      color:white;
-      border:1px solid #245ad6;
-    }
+</style>
 
-    .logout{
-      background:white;
-      color:#172033;
-      border:1px solid #d3dce9;
-    }
-
-    .rolebox{
-      background:#e8f1ff;
-      border:1px solid #c9dcff;
-      border-radius:14px;
-      padding:15px 18px;
-      margin-bottom:16px;
-    }
-
-    .rolebox strong{
-      color:#214bb5;
-    }
-
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
-      gap:14px;
-    }
-
-    .card{
-      padding:20px;
-    }
-
-    .card h2{
-      font-size:18px;
-      margin:8px 0;
-    }
-
-    .card a{
-      display:inline-block;
-      margin-top:8px;
-      padding:10px 13px;
-      background:#245ad6;
-      color:#fff;
-      text-decoration:none;
-      border-radius:9px;
-      font-weight:700;
-    }
-
-    .pill{
-      display:inline-block;
-      padding:5px 8px;
-      background:#e8f1ff;
-      color:#214bb5;
-      border-radius:999px;
-      font-size:12px;
-      font-weight:800;
-    }
-
-    .foot{
-      font-size:13px;
-      color:#64748b;
-      margin-top:18px;
-    }
-  </style>
 </head>
 
 <body>
 
-<div class="wrap">
+<main>
 
-  <header class="top">
-
-    <div>
-      <div class="brand">LIFFAN · ALL-SCHOOL PLATFORM</div>
-
-      <h1 id="welcome">
-        Loading your workspace…
-      </h1>
-
-      <p id="identity">
-        Checking signed-in account…
-      </p>
-    </div>
-
-    <div class="actions">
-      <a class="home" href="/">Home</a>
-      <button class="logout" id="logout">
-        Sign out
-      </button>
-    </div>
-
-  </header>
-
-
-  <section class="rolebox">
-    <strong id="roleTitle">
-      Checking permissions…
-    </strong>
-
-    <div id="roleDescription">
-      Your account permissions are being loaded.
-    </div>
-  </section>
-
-
-  <div id="cards" class="grid"></div>
-
-
-  <p class="foot">
-    Liffan automatically restricts users to their assigned role
-    and school.
-  </p>
-
+<div class="brand">
+LIFFAN · EDUCATION
 </div>
+
+<h1>Opening your workspace…</h1>
+
+<p id="message">
+Checking your account and school access.
+</p>
+
+</main>
 
 
 <script>
 
-const cards = document.querySelector('#cards');
+const message =
+  document.querySelector('#message');
 
-function esc(value){
-  return String(value ?? '').replace(
-    /[&<>"']/g,
-    character => ({
-      '&':'&amp;',
-      '<':'&lt;',
-      '>':'&gt;',
-      '"':'&quot;',
-      "'":'&#39;'
-    }[character])
-  );
+
+function destinationFor(user){
+
+switch(user.role){
+
+case 'PLATFORM_ADMIN':
+
+return '/platform-schools.html';
+
+
+case 'SCHOOL_ADMIN':
+
+return '/school-workspace.html';
+
+
+case 'SECRETARY':
+
+case 'FINANCE_OFFICE':
+
+case 'TEACHER':
+
+case 'PARENT':
+
+return '/school-workspace.html';
+
+
+default:
+
+return null;
+
 }
-
-
-const roleInformation = {
-
-  PLATFORM_ADMIN:{
-    title:'Liffan Platform Administrator',
-    description:
-      'You control the Liffan platform, school activation, subscriptions and access. Individual schools manage their own daily operations.'
-  },
-
-  SCHOOL_ADMIN:{
-    title:'School Administrator',
-    description:
-      'You are the administrator of this school. You control your school records and approve the Secretary, Finance Office, Teachers and Parents.'
-  },
-
-  SECRETARY:{
-    title:'School Secretary',
-    description:
-      'You manage admissions, student records, administrative records and school communication assigned by your School Administrator.'
-  },
-
-  FINANCE_OFFICE:{
-    title:'Finance Office',
-    description:
-      'You manage school fees, payments, balances, receipts and financial records for this school.'
-  },
-
-  TEACHER:{
-    title:'Teacher',
-    description:
-      'You manage academic work for your assigned classes and subjects, including marks and attendance.'
-  },
-
-  PARENT:{
-    title:'Parent Portal',
-    description:
-      'You can view information belonging only to the child or children linked to your account.'
-  }
-
-};
-
-
-const definitions = {
-
-  PLATFORM_ADMIN:[
-    [
-      'Schools',
-      'Approve schools, activate access, manage plans and expiry.',
-      '/platform-schools.html'
-    ],
-    [
-      'School applications',
-      'View schools applying to join the Liffan platform.',
-      '/platform-schools.html'
-    ]
-  ],
-
-
-  SCHOOL_ADMIN:[
-    [
-      'School Dashboard',
-      'Open and manage your school operations.',
-      '/school-workspace.html'
-    ],
-
-    [
-      'Staff & User Approvals',
-      'Approve Secretary, Finance Office, Teacher and Parent accounts.',
-      '/role-review.html'
-    ],
-
-    [
-      'Students',
-      'Manage students belonging to your school.',
-      '/students.html'
-    ],
-
-    [
-      'Admissions',
-      'Manage new student admissions and records.',
-      '/school-workspace.html'
-    ],
-
-    [
-      'Academics',
-      'Monitor subjects, marks, examinations and results.',
-      '/school-workspace.html'
-    ],
-
-    [
-      'Attendance',
-      'Monitor student attendance records.',
-      '/school-workspace.html'
-    ],
-
-    [
-      'Finance',
-      'Monitor school fees, payments and balances.',
-      '/school-workspace.html'
-    ],
-
-    [
-      'Reports',
-      'Access school operational and academic reports.',
-      '/school-workspace.html'
-    ]
-  ],
-
-
-  SECRETARY:[
-    [
-      'Administration',
-      'Open the school administration workspace.',
-      '/school-workspace.html'
-    ],
-
-    [
-      'Admissions',
-      'Manage permitted admission records.',
-      '/school-workspace.html'
-    ],
-
-    [
-      'Students',
-      'Add and manage permitted student records.',
-      '/students.html'
-    ],
-
-    [
-      'Announcements',
-      'Manage school notices and communication.',
-      '/school-workspace.html'
-    ]
-  ],
-
-
-  FINANCE_OFFICE:[
-    [
-      'Finance Dashboard',
-      'Open the school finance workspace.',
-      '/school-workspace.html'
-    ],
-
-    [
-      'School Fees',
-      'Manage student fee balances and charges.',
-      '/school-workspace.html'
-    ],
-
-    [
-      'Payments',
-      'Record and review school fee payments.',
-      '/school-workspace.html'
-    ],
-
-    [
-      'Financial Reports',
-      'View permitted school financial reports.',
-      '/school-workspace.html'
-    ]
-  ],
-
-
-  TEACHER:[
-    [
-      'Teacher Workspace',
-      'Open your academic workspace.',
-      '/school-workspace.html'
-    ],
-
-    [
-      'Students',
-      'View students in your permitted classes.',
-      '/students.html'
-    ],
-
-    [
-      'Marks & Results',
-      'Enter marks for assigned subjects and classes.',
-      '/school-workspace.html'
-    ],
-
-    [
-      'Attendance',
-      'Record attendance for permitted classes.',
-      '/school-workspace.html'
-    ]
-  ],
-
-
-  PARENT:[
-    [
-      'Parent Dashboard',
-      'View your linked child information.',
-      '/school-workspace.html'
-    ],
-
-    [
-      'My Children',
-      'View only children verified and linked to your account.',
-      '/parent-children.html'
-    ],
-
-    [
-      'Results',
-      'View approved academic results for your child.',
-      '/school-workspace.html'
-    ],
-
-    [
-      'Attendance',
-      'View your child attendance records.',
-      '/school-workspace.html'
-    ],
-
-    [
-      'Fees',
-      'View fee balances and payment records for your child.',
-      '/school-workspace.html'
-    ],
-
-    [
-      'Announcements',
-      'Read school announcements available to parents.',
-      '/school-workspace.html'
-    ]
-  ]
-
-};
-
-
-function render(user){
-
-  document.querySelector('#welcome').textContent =
-    `Welcome, ${user.full_name}`;
-
-  document.querySelector('#identity').textContent =
-    `${user.email} · ${user.role}`;
-
-  const information =
-    roleInformation[user.role] || {
-      title:'Liffan User',
-      description:'Your account has limited access.'
-    };
-
-  document.querySelector('#roleTitle').textContent =
-    information.title;
-
-  document.querySelector('#roleDescription').textContent =
-    information.description;
-
-  const list = definitions[user.role] || [];
-
-  if(!list.length){
-    cards.innerHTML = `
-      <section class="card">
-        <span class="pill">ACCOUNT ACTIVE</span>
-
-        <h2>No workspace assigned</h2>
-
-        <p>
-          Contact your school administrator.
-        </p>
-      </section>
-    `;
-
-    return;
-  }
-
-  cards.innerHTML = list.map(
-    ([title,description,href]) => `
-      <section class="card">
-
-        <span class="pill">
-          AVAILABLE
-        </span>
-
-        <h2>
-          ${esc(title)}
-        </h2>
-
-        <p>
-          ${esc(description)}
-        </p>
-
-        <a href="${esc(href)}">
-          Open
-        </a>
-
-      </section>
-    `
-  ).join('');
 
 }
 
 
 (async()=>{
 
-  try{
+try{
 
-    const response = await fetch(
-      '/api/auth/me',
-      {
-        credentials:'same-origin',
-        cache:'no-store'
-      }
-    );
-
-    const data =
-      await response.json().catch(()=>({}));
-
-    if(!response.ok || !data.user){
-
-      location.href =
-        '/school-login.html';
-
-      return;
-    }
-
-    render(data.user);
-
-  }catch(error){
-
-    location.href =
-      '/school-login.html';
-
-  }
-
-})();
-
-
-document
-  .querySelector('#logout')
-  .addEventListener(
-    'click',
-    async()=>{
-
-      await fetch(
-        '/api/auth/logout',
-        {
-          method:'POST',
-          credentials:'same-origin'
-        }
-      ).catch(()=>{});
-
-      location.href =
-        '/school-login.html';
-
+const response =
+  await fetch(
+    '/api/auth/me',
+    {
+      credentials:'same-origin',
+      cache:'no-store'
     }
   );
+
+
+const data =
+  await response.json()
+  .catch(()=>({}));
+
+
+if(
+  !response.ok ||
+  !data.user
+){
+
+location.replace(
+  '/school-login.html'
+);
+
+return;
+
+}
+
+
+const destination =
+  destinationFor(data.user);
+
+
+if(!destination){
+
+message.innerHTML =
+  'No workspace is assigned to this account. ' +
+  '<a href="/">Return home</a>.';
+
+return;
+
+}
+
+
+location.replace(
+  destination
+);
+
+}
+
+catch(error){
+
+location.replace(
+  '/school-login.html'
+);
+
+}
+
+})();
 
 </script>
 

@@ -16,17 +16,23 @@ export default function App() {
         <div className="liffan-hero-content">
 
           <div className="liffan-brand">
-            <span className="liffan-brand-mark">L</span>
+
+            <span className="liffan-brand-mark">
+              L
+            </span>
 
             <div>
               <strong>LIFFAN</strong>
               <small>EDUCATION</small>
             </div>
+
           </div>
+
 
           <span className="liffan-eyebrow">
             ONE PLATFORM · EVERY SCHOOL
           </span>
+
 
           <h1>
             Let's Convert
@@ -34,40 +40,56 @@ export default function App() {
             Learning Digital.
           </h1>
 
+
           <p>
             Give your school a smarter way to work.
-            Liffan brings administration, students,
-            teachers, academics, fees and communication
-            together in one secure digital platform.
+            Liffan connects school administration,
+            students, teachers, academics, finance,
+            parents and communication in one secure
+            digital platform.
           </p>
 
 
-          {/* MAIN SCHOOL ENTRY */}
           <div className="liffan-hero-actions">
 
             <button
               className="liffan-primary-button"
               type="button"
-              onClick={() => go("/register-school.html")}
+              onClick={() =>
+                go("/register-school.html")
+              }
             >
               Register Your School
             </button>
 
+
             <button
               className="liffan-secondary-button"
               type="button"
-              onClick={() => go("/school-login.html")}
+              onClick={() =>
+                go("/school-login.html")
+              }
             >
-              School Admin Sign In
+              Registered Sign In
             </button>
 
           </div>
 
 
           <div className="liffan-trust">
-            <span>✓ Secure school workspaces</span>
-            <span>✓ Independent school administration</span>
-            <span>✓ Your school. Your data.</span>
+
+            <span>
+              ✓ Secure school workspaces
+            </span>
+
+            <span>
+              ✓ Independent school administration
+            </span>
+
+            <span>
+              ✓ Your school. Your data.
+            </span>
+
           </div>
 
         </div>
@@ -85,11 +107,13 @@ export default function App() {
           </h2>
 
           <p>
-            One connected workspace from admission
-            to graduation.
+            One connected workspace from
+            admission to graduation.
           </p>
 
+
           <div className="liffan-module-grid">
+
             <span>Admissions</span>
             <span>Students</span>
             <span>Secretary</span>
@@ -100,6 +124,7 @@ export default function App() {
             <span>Fees</span>
             <span>Parents</span>
             <span>Reports</span>
+
           </div>
 
         </div>
@@ -107,25 +132,32 @@ export default function App() {
       </section>
 
 
-      {/* SCHOOL ACCESS */}
+      {/* SIMPLE ACCESS */}
       <section className="liffan-benefits">
 
         <article>
 
-          <span className="liffan-number">01</span>
+          <span className="liffan-number">
+            01
+          </span>
 
-          <h3>Register Your School</h3>
+          <h3>
+            Register Your School
+          </h3>
 
           <p>
-            Apply for a Liffan school workspace.
-            Once approved, your school receives its
-            own secure administration environment.
+            Apply for your own Liffan school
+            workspace. Once approved, your
+            school operates independently
+            inside the platform.
           </p>
 
           <button
             className="liffan-primary-button"
             type="button"
-            onClick={() => go("/register-school.html")}
+            onClick={() =>
+              go("/register-school.html")
+            }
           >
             Register School
           </button>
@@ -135,22 +167,29 @@ export default function App() {
 
         <article>
 
-          <span className="liffan-number">02</span>
+          <span className="liffan-number">
+            02
+          </span>
 
-          <h3>School Administrator</h3>
+          <h3>
+            Registered Sign In
+          </h3>
 
           <p>
-            The School Admin controls the individual
-            school and manages Secretary, Finance Office,
-            Teachers and Parent access.
+            One secure sign-in for approved
+            Liffan accounts. Your role
+            automatically determines the
+            dashboard you are allowed to use.
           </p>
 
           <button
             className="liffan-primary-button"
             type="button"
-            onClick={() => go("/school-login.html")}
+            onClick={() =>
+              go("/school-login.html")
+            }
           >
-            School Admin Sign In
+            Sign In
           </button>
 
         </article>
@@ -158,22 +197,27 @@ export default function App() {
 
         <article>
 
-          <span className="liffan-number">03</span>
+          <span className="liffan-number">
+            03
+          </span>
 
-          <h3>School Users</h3>
+          <h3>
+            Forgot Password?
+          </h3>
 
           <p>
-            Secretary, Finance Office, Teachers and
-            Parents use their approved school accounts
-            to access only their permitted work.
+            Recover access to your registered
+            Liffan account if you cannot sign in.
           </p>
 
           <button
             className="liffan-secondary-button"
             type="button"
-            onClick={() => go("/school-login.html")}
+            onClick={() =>
+              go("/forgot-password.html")
+            }
           >
-            School User Sign In
+            Recover Account
           </button>
 
         </article>
@@ -181,24 +225,24 @@ export default function App() {
       </section>
 
 
-      {/* DIGITAL SCHOOL */}
+      {/* HOW ACCESS WORKS */}
       <section className="liffan-digital-section">
 
         <div>
 
           <span className="liffan-eyebrow">
-            BUILT FOR MODERN EDUCATION
+            ONE ACCOUNT · CORRECT WORKSPACE
           </span>
 
           <h2>
-            One school. One digital workspace.
+            Liffan knows where you belong.
           </h2>
 
           <p>
-            Every approved school operates independently
-            inside Liffan while the platform securely
-            separates its students, staff, finances and
-            academic records from other schools.
+            After sign-in, Liffan checks your
+            approved role and school automatically.
+            You are then taken directly to the
+            workspace you are permitted to use.
           </p>
 
         </div>
@@ -207,18 +251,46 @@ export default function App() {
         <div className="liffan-digital-points">
 
           <div>
-            <strong>School Admin</strong>
-            <span>Controls the individual school</span>
+            <strong>
+              Platform Admin
+            </strong>
+
+            <span>
+              Manages schools, access and billing
+            </span>
           </div>
 
-          <div>
-            <strong>School Staff</strong>
-            <span>Access based on assigned duties</span>
-          </div>
 
           <div>
-            <strong>Parents</strong>
-            <span>Access only their linked children</span>
+            <strong>
+              School Admin
+            </strong>
+
+            <span>
+              Controls their individual school
+            </span>
+          </div>
+
+
+          <div>
+            <strong>
+              School Staff
+            </strong>
+
+            <span>
+              Work according to assigned duties
+            </span>
+          </div>
+
+
+          <div>
+            <strong>
+              Parents
+            </strong>
+
+            <span>
+              Access only linked children
+            </span>
           </div>
 
         </div>
@@ -226,57 +298,49 @@ export default function App() {
       </section>
 
 
-      {/* SCHOOL CTA */}
+      {/* SCHOOL CONTROL */}
       <section className="liffan-cta">
 
-        <span>READY TO GO DIGITAL?</span>
+        <span>
+          YOUR SCHOOL · YOUR WORKSPACE
+        </span>
 
         <h2>
-          Bring your school into the future.
+          Run your school digitally.
         </h2>
 
         <p>
-          Register your school with Liffan and receive
-          your own secure digital school workspace.
+          Manage students, admissions,
+          staff, academics, attendance,
+          finance, reports, school branding
+          and parent access from one system.
         </p>
 
-        <button
-          className="liffan-primary-button"
-          type="button"
-          onClick={() => go("/register-school.html")}
-        >
-          Register Your School →
-        </button>
 
-      </section>
+        <div className="liffan-hero-actions">
+
+          <button
+            className="liffan-primary-button"
+            type="button"
+            onClick={() =>
+              go("/register-school.html")
+            }
+          >
+            Register Your School →
+          </button>
 
 
-      {/* PLATFORM ADMIN */}
-      <section
-        style={{
-          maxWidth: "1100px",
-          margin: "20px auto",
-          padding: "20px",
-          textAlign: "center"
-        }}
-      >
+          <button
+            className="liffan-secondary-button"
+            type="button"
+            onClick={() =>
+              go("/school-login.html")
+            }
+          >
+            Registered Sign In
+          </button>
 
-        <small>
-          LIFFAN PLATFORM MANAGEMENT
-        </small>
-
-        <p>
-          Platform administration is restricted to
-          authorized Liffan management.
-        </p>
-
-        <button
-          className="liffan-secondary-button"
-          type="button"
-          onClick={() => go("/school-login.html")}
-        >
-          Platform Admin Sign In
-        </button>
+        </div>
 
       </section>
 

@@ -1,7 +1,7 @@
 import { getAuthenticatedUser, json } from './_lib/auth.js';
 
 const privateImplementedPaths = new Set([
-  '/api/auth/me','/api/schools/delete', '/api/auth/requests', '/api/auth/admin-reset-password',
+  '/api/auth/me','/api/school-profile','/api/schools/delete', '/api/auth/requests', '/api/auth/admin-reset-password',
   '/api/schools', '/api/schools/approve', '/api/students', '/api/parent/children',
   '/api/subjects', '/api/teacher-assignments', '/api/marks', '/api/attendance',
   '/api/fees', '/api/announcements', '/api/reports', '/api/audit-events', '/api/invitations', '/api/users',

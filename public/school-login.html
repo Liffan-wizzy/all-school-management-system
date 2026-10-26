@@ -1,43 +1,341 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sign in · Liffan All-School</title>
-<style>:root{font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:#172033;background:#f2f6fb}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:22px}main{width:min(100%,440px);background:#fff;border:1px solid #dce5f0;border-radius:18px;padding:30px;box-shadow:0 16px 40px #192d4a12}.brand{font-size:12px;font-weight:850;letter-spacing:.14em;color:#245ad6}h1{font-size:26px;margin:10px 0 6px}p{color:#526078;line-height:1.5}label{display:block;margin:16px 0 6px;font-size:14px;font-weight:700}input{width:100%;padding:13px;border:1px solid #cbd5e1;border-radius:10px;font:inherit}button{width:100%;padding:13px;margin-top:20px;background:#245ad6;color:#fff;border:0;border-radius:10px;font:inherit;font-weight:750;cursor:pointer}button:disabled{opacity:.6}.msg{margin-top:14px;font-size:14px;white-space:pre-wrap}.links{font-size:14px;margin-top:18px;line-height:1.8}a{color:#245ad6}</style>
-</head><body><main><div class="brand">LIFFAN · ALL-SCHOOL</div><h1>Sign in</h1><p>Sign in with the account approved for your school and role.</p>
-<form id="loginForm"><label for="email">Email address</label><input id="email" type="email" autocomplete="username" required><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required><button id="submit" type="submit">Sign in</button></form>
-<div id="message" class="msg" role="status" aria-live="polite"></div><div class="links"><a href="/role-register.html">New teacher, secretary or parent? Request an account</a><br><a href="/accept-invite.html">Have a school invitation code?</a><br><a href="/register-school.html">Register a new school</a><br><a href="/">Return to website</a></div></main>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Registered Sign In · Liffan Education</title>
+
+<style>
+:root{
+  font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;
+  color:#172033;
+  background:#f2f6fb;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  padding:22px;
+}
+
+main{
+  width:min(100%,450px);
+  background:#fff;
+  border:1px solid #dce5f0;
+  border-radius:20px;
+  padding:30px;
+  box-shadow:0 16px 40px #192d4a12;
+}
+
+.brand{
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.14em;
+  color:#245ad6;
+}
+
+h1{
+  font-size:28px;
+  margin:10px 0 6px;
+}
+
+.intro{
+  color:#526078;
+  line-height:1.5;
+  margin-bottom:22px;
+}
+
+label{
+  display:block;
+  margin:16px 0 6px;
+  font-size:14px;
+  font-weight:750;
+}
+
+input{
+  width:100%;
+  padding:13px;
+  border:1px solid #cbd5e1;
+  border-radius:10px;
+  font:inherit;
+}
+
+button{
+  width:100%;
+  padding:13px;
+  margin-top:20px;
+  background:#245ad6;
+  color:#fff;
+  border:0;
+  border-radius:10px;
+  font:inherit;
+  font-weight:800;
+  cursor:pointer;
+}
+
+button:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+}
+
+.msg{
+  margin-top:14px;
+  font-size:14px;
+  white-space:pre-wrap;
+}
+
+.links{
+  border-top:1px solid #e2e8f0;
+  margin-top:22px;
+  padding-top:18px;
+  font-size:14px;
+  line-height:2;
+}
+
+a{
+  color:#245ad6;
+  text-decoration:none;
+  font-weight:650;
+}
+
+a:hover{
+  text-decoration:underline;
+}
+
+.register{
+  display:block;
+  text-align:center;
+  border:1px solid #245ad6;
+  border-radius:10px;
+  padding:10px;
+  margin-top:12px;
+}
+
+.note{
+  margin-top:20px;
+  color:#64748b;
+  font-size:12px;
+  text-align:center;
+  line-height:1.5;
+}
+</style>
+</head>
+
+<body>
+
+<main>
+
+<div class="brand">
+LIFFAN · EDUCATION
+</div>
+
+<h1>Registered Sign In</h1>
+
+<p class="intro">
+Sign in to your registered Liffan account.
+Your account automatically opens the correct
+platform or school workspace.
+</p>
+
+
+<form id="loginForm">
+
+<label for="email">
+Email address
+</label>
+
+<input
+id="email"
+type="email"
+autocomplete="username"
+placeholder="you@example.com"
+required
+>
+
+
+<label for="password">
+Password
+</label>
+
+<input
+id="password"
+type="password"
+autocomplete="current-password"
+required
+>
+
+
+<button id="submit" type="submit">
+Sign In
+</button>
+
+</form>
+
+
+<div
+id="message"
+class="msg"
+role="status"
+aria-live="polite">
+</div>
+
+
+<div class="links">
+
+<a href="/forgot-password.html">
+Forgot password?
+</a>
+
+<br>
+
+<a
+class="register"
+href="/register-school.html">
+Register Your School
+</a>
+
+<br>
+
+<a href="/">
+← Return to Liffan website
+</a>
+
+</div>
+
+
+<p class="note">
+School staff and parents receive access through
+their registered school.
+</p>
+
+</main>
+
+
 <script>
-const form=document.querySelector('#loginForm'),
-message=document.querySelector('#message'),
-button=document.querySelector('#submit');
 
-form.addEventListener('submit',async e=>{
-  e.preventDefault();
-  button.disabled=true;
-  message.textContent='Signing in…';
+const form =
+  document.querySelector('#loginForm');
 
-  try{
-    const r=await fetch('/api/auth/login',{
-      method:'POST',
-      credentials:'same-origin',
-      headers:{
-        'Content-Type':'application/json'
-      },
-      body:JSON.stringify({
-        email:document.querySelector('#email').value.trim(),
-        password:document.querySelector('#password').value
-      })
-    });
+const message =
+  document.querySelector('#message');
 
-    const d=await r.json().catch(()=>({}));
+const button =
+  document.querySelector('#submit');
 
-    if(!r.ok)
-      throw new Error(d.error||`Sign in failed (${r.status}).`);
 
-    location.href='/role-dashboard.html';
+function destinationFor(user){
 
-  }catch(err){
-    message.textContent=err.message||'Sign in failed.';
-    button.disabled=false;
+  switch(user.role){
+
+    case 'PLATFORM_ADMIN':
+      return '/platform-schools.html';
+
+    case 'SCHOOL_ADMIN':
+      return '/school-workspace.html';
+
+    case 'SECRETARY':
+    case 'FINANCE_OFFICE':
+    case 'TEACHER':
+    case 'PARENT':
+      return '/school-workspace.html';
+
+    default:
+      return '/role-dashboard.html';
   }
-});
-</script></body></html>
+
+}
+
+
+form.addEventListener(
+'submit',
+async event => {
+
+event.preventDefault();
+
+button.disabled = true;
+
+message.textContent =
+  'Signing in…';
+
+
+try{
+
+const response =
+  await fetch(
+    '/api/auth/login',
+    {
+      method:'POST',
+
+      credentials:'same-origin',
+
+      headers:{
+        'Content-Type':
+          'application/json'
+      },
+
+      body:JSON.stringify({
+
+        email:
+          document.querySelector(
+            '#email'
+          ).value.trim(),
+
+        password:
+          document.querySelector(
+            '#password'
+          ).value
+
+      })
+    }
+  );
+
+
+const data =
+  await response.json()
+  .catch(()=>({}));
+
+
+if(
+  !response.ok ||
+  !data.user
+){
+
+throw new Error(
+  data.error ||
+  'Sign in failed.'
+);
+
+}
+
+
+message.textContent =
+  'Opening your workspace…';
+
+
+location.href =
+  destinationFor(data.user);
+
+}
+
+catch(error){
+
+message.textContent =
+  error.message ||
+  'Sign in failed.';
+
+button.disabled = false;
+
+}
+
+}
+);
+
+</script>
+
+</body>
+</html>
