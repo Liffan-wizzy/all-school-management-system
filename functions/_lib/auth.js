@@ -380,28 +380,30 @@ export async function getAuthenticatedUser(
     };
   }
 
-  const sessionExpiry =
-    parseStoredDate(
-      row.session_expires_at
-    );
+  const sessionExpiry = new Date(
+  String(row.session_expires_at)
+).getTime();
 
-  if (
-    !Number.isFinite(
-      sessionExpiry
-    ) ||
-    sessionExpiry <= Date.now()
-  ) {
-    return {
-      user: null,
-      response: json(
-        {
-          error:
-            'Your session has expired. Please sign in again.',
-        },
-        401
-      ),
-    };
-  }
+const now = Date.now();
+
+if (
+  Number.isNaN(sessionExpiry) ||
+  sessionExpiry <= now
+) {
+  return {
+    user: null,
+    response: json(
+      {
+        error: 'Your session has expired. Please sign in again.',
+        debug: {
+          session_expires_at: row.session_expires_at,
+          server_now: new Date(now).toISOString()
+        }
+      },
+      401
+    ),
+  };
+}
 
   /*
    * Platform Administrator is not
