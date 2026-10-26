@@ -105,41 +105,206 @@ function expiryIsValid(value) {
   const parsed = Date.parse(/^\d{4}-\d{2}-\d{2}$/.test(raw) ? `${raw}T23:59:59.999Z` : raw);
   return Number.isFinite(parsed) && parsed >= Date.now();
 }
+function expiryIsValid(value) {
+  // No expiry means the Platform Admin has left
+  // this school active until manually suspended.
+  if (!value) return true;
+
+  const raw = String(value).trim();
+
+  const parsed = Date.parse(
+    /^\d{4}-\d{2}-\d{2}$/.test(raw)
+      ? `${raw}T23:59:59.999Z`
+      : raw
+  );
+
+  return Number.isFinite(parsed) && parsed >= Date.now();
+}
+
 
 export async function getAuthenticatedUser(request, env) {
-  const token = getCookie(request, SESSION_COOKIE);
-  if (!token) return { user: null, response: json({ error: 'Sign in required.' }, 401) };
 
-  const tokenHash = await sha256Base64Url(token);
-  const row = await env.DB.prepare(`
-    SELECT u.id, u.school_id, u.full_name, u.email, u.role, u.active,
-           s.expires_at AS session_expires_at
-    FROM auth_sessions s
-    JOIN auth_users u ON u.id = s.user_id
-    WHERE s.token_hash = ?
-    LIMIT 1
-  `).bind(tokenHash).first();
+  const token = getCookie(
+    request,
+    SESSION_COOKIE
+  );
 
-  if (!row || !row.active || Date.parse(row.session_expires_at) <= Date.now()) {
-    return { user: null, response: json({ error: 'Your session has expired. Please sign in again.' }, 401) };
+  if (!token) {
+    return {
+      user: null,
+      response: json({
+        error: 'Sign in required.'
+      }, 401)
+    };
   }
 
-  if (row.role !== 'PLATFORM_ADMIN') {
-    const access = await env.DB.prepare(
-      'SELECT status, paid_until FROM school_access WHERE school_id = ? LIMIT 1',
-    ).bind(String(row.school_id)).first();
-    if (!access || access.status !== 'ACTIVE' || !expiryIsValid(access.paid_until)) {
-      return { user: null, response: json({ error: 'This school account is not active or its paid access has expired.' }, 403) };
-    }
+
+  const tokenHash =
+    await sha256Base64Url(token);
+
+
+  const row =
+    await env.DB.prepare(`
+      SELECT
+        u.id,
+        u.school_id,
+        u.full_name,
+        u.email,
+        u.role,
+        u.active,
+        s.expires_at AS session_expires_at
+      FROM auth_sessions s
+      JOIN auth_users u
+        ON u.id = s.user_id
+      WHERE s.token_hash = ?
+      LIMIT 1
+    `)
+    .bind(tokenHash)
+    .first();
+
+
+  if (!row) {
+    return {
+      user: null,
+      response: json({
+        error: 'Your session was not found. Please sign in again.'
+      }, 401)
+    };
   }
 
-  return { user: {
-    id: row.id,
-    school_id: row.school_id,
-    full_name: row.full_name,
-    email: row.email,
-    role: row.role,
-  }, response: null };
+
+  if (!row.active) {
+    return {
+      user: null,
+      response: json({
+        error: 'This account is inactive.'
+      }, 403)
+    };
+  }
+
+
+  const sessionExpiry =
+    Date.parse(row.session_expires_at);
+
+
+  if (
+    !Number.isFinite(sessionExpiry) ||
+    sessionExpiry <= Date.now()
+  ) {
+
+    return {
+      user: null,
+      response: json({
+        error: 'Your session has expired. Please sign in again.'
+      }, 401)
+    };
+
+  }
+
+
+  /*
+   * Platform Administrator belongs to Liffan itself
+   * and therefore does not require school access.
+   */
+  if (row.role === 'PLATFORM_ADMIN') {
+
+    return {
+      user: {
+        id: row.id,
+        school_id: null,
+        full_name: row.full_name,
+        email: row.email,
+        role: row.role
+      },
+      response: null
+    };
+
+  }
+
+
+  /*
+   * Every school user must belong to a school.
+   */
+  if (!row.school_id) {
+
+    return {
+      user: null,
+      response: json({
+        error: 'This account is not assigned to a school.'
+      }, 403)
+    };
+
+  }
+
+
+  /*
+   * Platform Admin validation controls whether
+   * the school may use Liffan.
+   */
+  const access =
+    await env.DB.prepare(`
+      SELECT
+        status,
+        plan,
+        paid_until
+      FROM school_access
+      WHERE CAST(school_id AS TEXT) = ?
+      LIMIT 1
+    `)
+    .bind(String(row.school_id))
+    .first();
+
+
+  if (!access) {
+
+    return {
+      user: null,
+      response: json({
+        error: 'This school has not been activated by Liffan.'
+      }, 403)
+    };
+
+  }
+
+
+  if (
+    String(access.status || '')
+      .toUpperCase() !== 'ACTIVE'
+  ) {
+
+    return {
+      user: null,
+      response: json({
+        error: 'This school is currently suspended or awaiting activation.'
+      }, 403)
+    };
+
+  }
+
+
+  if (!expiryIsValid(access.paid_until)) {
+
+    return {
+      user: null,
+      response: json({
+        error: 'This school access period has expired. Contact Liffan administration.'
+      }, 403)
+    };
+
+  }
+
+
+  return {
+    user: {
+      id: row.id,
+      school_id: row.school_id,
+      full_name: row.full_name,
+      email: row.email,
+      role: row.role
+    },
+    response: null
+  };
+
 }
 
 export async function requireRole(request, env, allowedRoles) {
