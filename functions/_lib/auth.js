@@ -48,7 +48,7 @@ function base64UrlToBytes(value) {
 
   return Uint8Array.from(
     binary,
-    (char) => char.charCodeAt(0)
+    char => char.charCodeAt(0)
   );
 }
 
@@ -61,11 +61,10 @@ export function makeRandomToken(size = 32) {
 }
 
 export async function sha256Base64Url(value) {
-  const digest =
-    await crypto.subtle.digest(
-      'SHA-256',
-      new TextEncoder().encode(value)
-    );
+  const digest = await crypto.subtle.digest(
+    'SHA-256',
+    new TextEncoder().encode(value)
+  );
 
   return bytesToBase64Url(
     new Uint8Array(digest)
@@ -86,26 +85,24 @@ export async function hashPassword(
     );
   }
 
-  const key =
-    await crypto.subtle.importKey(
-      'raw',
-      new TextEncoder().encode(password),
-      'PBKDF2',
-      false,
-      ['deriveBits']
-    );
+  const key = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(password),
+    'PBKDF2',
+    false,
+    ['deriveBits']
+  );
 
-  const bits =
-    await crypto.subtle.deriveBits(
-      {
-        name: 'PBKDF2',
-        salt: base64UrlToBytes(salt),
-        iterations: PBKDF2_ITERATIONS,
-        hash: 'SHA-256',
-      },
-      key,
-      256
-    );
+  const bits = await crypto.subtle.deriveBits(
+    {
+      name: 'PBKDF2',
+      salt: base64UrlToBytes(salt),
+      iterations: PBKDF2_ITERATIONS,
+      hash: 'SHA-256',
+    },
+    key,
+    256
+  );
 
   return {
     salt,
@@ -125,9 +122,7 @@ export async function verifyPassword(
       await hashPassword(password, salt);
 
     const left =
-      new TextEncoder().encode(
-        result.hash
-      );
+      new TextEncoder().encode(result.hash);
 
     const right =
       new TextEncoder().encode(
@@ -174,10 +169,12 @@ export function getCookie(request, name) {
 
   return null;
 }
+
 export function sessionCookie(
   request,
   token,
-  maxAgeSeconds = SESSION_HOURS * 60 * 60
+  maxAgeSeconds =
+    SESSION_HOURS * 60 * 60
 ) {
   return [
     `${SESSION_COOKIE}=${token}`,
@@ -185,34 +182,27 @@ export function sessionCookie(
     `Max-Age=${maxAgeSeconds}`,
     'HttpOnly',
     'Secure',
-    'SameSite=Lax'
+    'SameSite=Lax',
   ].join('; ');
 }
-
 
 export async function createSession(
   request,
   env,
   userId
 ) {
-  const token =
-    makeRandomToken(32);
+  const token = makeRandomToken(32);
 
   const tokenHash =
     await sha256Base64Url(token);
 
-  /*
-   * Store a standard ISO timestamp.
-   * Example:
-   * 2026-10-27T05:00:00.000Z
-   */
   const expiresAt =
     new Date(
       Date.now() +
-        SESSION_HOURS *
-          60 *
-          60 *
-          1000
+      SESSION_HOURS *
+      60 *
+      60 *
+      1000
     ).toISOString();
 
   await env.DB.prepare(`
@@ -239,48 +229,26 @@ export async function createSession(
 }
 
 function parseStoredDate(value) {
-  if (!value) {
-    return NaN;
-  }
+  if (!value) return NaN;
 
   const raw =
     String(value).trim();
 
-  /*
-   * ISO timestamps already contain T.
-   */
   if (raw.includes('T')) {
     return Date.parse(raw);
   }
 
-  /*
-   * SQLite timestamps may look like:
-   * 2026-10-27 05:00:00
-   *
-   * Treat them as UTC.
-   */
   return Date.parse(
     raw.replace(' ', 'T') + 'Z'
   );
 }
 
 function expiryIsValid(value) {
-  /*
-   * No expiry means the Platform
-   * Administrator has left the
-   * school active manually.
-   */
-  if (!value) {
-    return true;
-  }
+  if (!value) return true;
 
   const raw =
     String(value).trim();
 
-  /*
-   * Date-only paid_until values remain
-   * valid through the end of that date.
-   */
   if (
     /^\d{4}-\d{2}-\d{2}$/.test(raw)
   ) {
@@ -376,34 +344,30 @@ export async function getAuthenticatedUser(
     };
   }
 
-  const sessionExpiry = new Date(
-  String(row.session_expires_at)
-).getTime();
+  const sessionExpiry =
+    new Date(
+      String(row.session_expires_at)
+    ).getTime();
 
-const now = Date.now();
-
-if (
-  Number.isNaN(sessionExpiry) ||
-  sessionExpiry <= now
-) {
-  return {
-    user: null,
-    response: json(
-      {
-        error: 'Your session has expired. Please sign in again.',
-        debug: {
-          session_expires_at: row.session_expires_at,
-          server_now: new Date(now).toISOString()
-        }
-      },
-      401
-    ),
-  };
-}
+  if (
+    Number.isNaN(sessionExpiry) ||
+    sessionExpiry <= Date.now()
+  ) {
+    return {
+      user: null,
+      response: json(
+        {
+          error:
+            'Your session has expired. Please sign in again.',
+        },
+        401
+      ),
+    };
+  }
 
   /*
-   * Platform Administrator is not
-   * attached to an individual school.
+   * Liffan Platform Administrator.
+   * Never belongs to a school.
    */
   if (
     row.role ===
@@ -415,16 +379,26 @@ if (
         school_id: null,
         full_name:
           row.full_name,
-        email: row.email,
-        role: row.role,
+        email:
+          row.email,
+        role:
+          row.role,
+
+        school_access: {
+          status:
+            'PLATFORM',
+          active: true,
+          plan: null,
+          paid_until: null,
+        },
       },
       response: null,
     };
   }
 
   /*
-   * Every other account must belong
-   * to a school.
+   * Every school account must
+   * belong to one school.
    */
   if (!row.school_id) {
     return {
@@ -440,8 +414,8 @@ if (
   }
 
   /*
-   * Platform Administrator validation
-   * controls school access.
+   * Subscription status is now
+   * separate from authentication.
    */
   const access =
     await env.DB.prepare(`
@@ -458,64 +432,120 @@ if (
       )
       .first();
 
-  if (!access) {
-    return {
-      user: null,
-      response: json(
-        {
-          error:
-            'This school has not been activated by Liffan.',
-        },
-        403
-      ),
-    };
-  }
+  let accessStatus =
+    'NOT_ACTIVATED';
 
-  if (
-    String(
-      access.status || ''
-    ).toUpperCase() !==
-    'ACTIVE'
-  ) {
-    return {
-      user: null,
-      response: json(
-        {
-          error:
-            'This school is suspended or awaiting activation.',
-        },
-        403
-      ),
-    };
-  }
+  let accessActive =
+    false;
 
-  if (
-    !expiryIsValid(
-      access.paid_until
-    )
-  ) {
-    return {
-      user: null,
-      response: json(
-        {
-          error:
-            'This school access period has expired. Contact Liffan administration.',
-        },
-        403
-      ),
-    };
+  let plan = null;
+  let paidUntil = null;
+
+  if (access) {
+    plan =
+      access.plan || null;
+
+    paidUntil =
+      access.paid_until || null;
+
+    const storedStatus =
+      String(
+        access.status || ''
+      ).toUpperCase();
+
+    if (
+      storedStatus === 'ACTIVE'
+    ) {
+      if (
+        expiryIsValid(
+          access.paid_until
+        )
+      ) {
+        accessStatus =
+          'ACTIVE';
+
+        accessActive =
+          true;
+      } else {
+        accessStatus =
+          'EXPIRED';
+      }
+    }
+
+    else if (
+      storedStatus ===
+      'TESTING'
+    ) {
+      if (
+        expiryIsValid(
+          access.paid_until
+        )
+      ) {
+        accessStatus =
+          'TESTING';
+
+        accessActive =
+          true;
+      } else {
+        accessStatus =
+          'EXPIRED';
+      }
+    }
+
+    else if (
+      storedStatus ===
+      'SUSPENDED'
+    ) {
+      accessStatus =
+        'SUSPENDED';
+    }
+
+    else if (
+      storedStatus ===
+      'CANCELLED'
+    ) {
+      accessStatus =
+        'CANCELLED';
+    }
+
+    else {
+      accessStatus =
+        storedStatus ||
+        'NOT_ACTIVATED';
+    }
   }
 
   return {
     user: {
-      id: row.id,
+      id:
+        row.id,
+
       school_id:
         row.school_id,
+
       full_name:
         row.full_name,
-      email: row.email,
-      role: row.role,
+
+      email:
+        row.email,
+
+      role:
+        row.role,
+
+      school_access: {
+        status:
+          accessStatus,
+
+        active:
+          accessActive,
+
+        plan,
+
+        paid_until:
+          paidUntil,
+      },
     },
+
     response: null,
   };
 }
@@ -557,8 +587,11 @@ export async function requireRole(
   }
 
   return {
-    user: auth.user,
-    response: null,
+    user:
+      auth.user,
+
+    response:
+      null,
   };
 }
 
@@ -645,7 +678,7 @@ export function pickColumn(
   const byLower =
     new Map(
       columns.map(
-        (column) => [
+        column => [
           String(
             column.name
           ).toLowerCase(),
@@ -669,4 +702,4 @@ export function pickColumn(
   }
 
   return null;
-}
+}s
