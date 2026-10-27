@@ -74,6 +74,11 @@ button,a.btn{
   cursor:pointer
 }
 
+button:disabled{
+  opacity:.55;
+  cursor:not-allowed
+}
+
 .mutebtn{
   background:#e8eefc;
   color:#234eab
@@ -142,6 +147,32 @@ nav button.active{
 .err{
   color:#9e1c1c;
   background:#fff0f0
+}
+
+.notice{
+  padding:14px;
+  margin:12px 0;
+  border-radius:11px;
+  border:1px solid #d9e3f0;
+  background:#f7f9fd
+}
+
+.notice.warning{
+  background:#fff8e6;
+  border-color:#f1d48b;
+  color:#6d4b00
+}
+
+.notice.dangerbox{
+  background:#fff0f0;
+  border-color:#efb5b5;
+  color:#8b1b1b
+}
+
+.notice.success{
+  background:#edf9f0;
+  border-color:#b9e2c2;
+  color:#17632a
 }
 
 form{
@@ -249,6 +280,75 @@ pre{
   font-size:11px;
   font-weight:800
 }
+
+.statusbar{
+  max-width:1350px;
+  margin:16px auto 0;
+  padding:0 18px
+}
+
+.statusbox{
+  padding:12px 15px;
+  border-radius:12px;
+  font-weight:700;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap
+}
+
+.status-active{
+  background:#edf9f0;
+  border:1px solid #b9e2c2;
+  color:#17632a
+}
+
+.status-testing{
+  background:#eef4ff;
+  border:1px solid #bfd1ff;
+  color:#1745a8
+}
+
+.status-restricted{
+  background:#fff4e8;
+  border:1px solid #efc68f;
+  color:#7b4600
+}
+
+.fee-notice{
+  margin:14px 0;
+  padding:14px;
+  border-radius:11px;
+  background:#fff8e6;
+  border:1px solid #f1d48b;
+  color:#624400;
+  line-height:1.5
+}
+
+.dashboard-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:12px;
+  margin:16px 0
+}
+
+.dashboard-card{
+  border:1px solid #dce5f0;
+  border-radius:12px;
+  padding:16px;
+  background:#f8faff
+}
+
+.dashboard-card h3{
+  margin:0 0 7px
+}
+
+.dashboard-card p{
+  margin:0;
+  color:#5b6880;
+  line-height:1.45
+}
 </style>
 </head>
 
@@ -260,18 +360,12 @@ pre{
 
 <img id="schoolLogo" class="logo" alt="School logo">
 
-<div id="logoPlaceholder" class="logo-placeholder">
-S
-</div>
+<div id="logoPlaceholder" class="logo-placeholder">S</div>
 
 <div>
 <div class="brand">LIFFAN · SCHOOL</div>
-
 <h1 id="title">School Dashboard</h1>
-
-<p id="identity">
-Checking your account…
-</p>
+<p id="identity">Checking your account…</p>
 </div>
 
 </div>
@@ -283,6 +377,9 @@ Checking your account…
 
 </header>
 
+<div class="statusbar">
+<div id="accessStatus" class="statusbox status-active" hidden></div>
+</div>
 
 <div class="layout">
 
@@ -290,9 +387,7 @@ Checking your account…
 
 <main class="panel">
 
-<h2 id="moduleTitle">
-Loading…
-</h2>
+<h2 id="moduleTitle">Loading…</h2>
 
 <p id="description" class="muted"></p>
 
@@ -308,206 +403,221 @@ Refresh records
 </button>
 </div>
 
-<pre id="output">
-Loading account…
-</pre>
+<pre id="output">Loading account…</pre>
 
 </main>
 
 </div>
 
-
 <script>
 
-const $ = s =>
-  document.querySelector(s);
+const $ = selector =>
+  document.querySelector(selector);
 
 let me = null;
 let schoolProfile = null;
 let current = 'home';
 
-const esc = s =>
-  String(s ?? '').replace(
+const esc = value =>
+  String(value ?? '').replace(
     /[&<>"']/g,
-    c => ({
+    character => ({
       '&':'&amp;',
       '<':'&lt;',
       '>':'&gt;',
       '"':'&quot;',
       "'":'&#39;'
-    }[c])
+    }[character])
   );
-
 
 const modules = {
 
-home:{
-  title:'Overview',
-  path:null,
-  roles:[
-    'SCHOOL_ADMIN',
-    'SECRETARY',
-    'FINANCE_OFFICE',
-    'TEACHER',
-    'PARENT'
-  ],
-  description:
-    'Your school dashboard and permitted services.'
-},
+  home:{
+    title:'Overview',
+    path:null,
+    roles:[
+      'SCHOOL_ADMIN',
+      'DEPUTY',
+      'SENIOR_MANAGER',
+      'SECRETARY',
+      'FINANCE_OFFICE',
+      'TEACHER'
+    ],
+    description:
+      'Your school dashboard and permitted services.'
+  },
 
-profile:{
-  title:'School Profile & Media',
-  path:'/api/school-profile',
-  roles:[
-    'SCHOOL_ADMIN',
-    'SECRETARY',
-    'FINANCE_OFFICE',
-    'TEACHER',
-    'PARENT'
-  ],
-  description:
-    'School identity, contact information, logo and photos.',
-  special:'profile'
-},
+  subscription:{
+    title:'Liffan Access & Support',
+    path:null,
+    roles:['SCHOOL_ADMIN'],
+    description:
+      'View school access status and contact Liffan administration.',
+    special:'subscription'
+  },
 
-students:{
-  title:'Students',
-  path:'/api/students',
-  roles:[
-    'SCHOOL_ADMIN',
-    'SECRETARY',
-    'TEACHER'
-  ],
-  description:
-    'Student records belonging to this school.'
-},
+  profile:{
+    title:'School Profile & Media',
+    path:'/api/school-profile',
+    roles:[
+      'SCHOOL_ADMIN',
+      'DEPUTY',
+      'SENIOR_MANAGER',
+      'SECRETARY',
+      'FINANCE_OFFICE',
+      'TEACHER'
+    ],
+    description:
+      'School identity, contact information, logo and photos.',
+    special:'profile'
+  },
 
-children:{
-  title:'My Children',
-  path:'/api/parent/children',
-  roles:['PARENT'],
-  description:
-    'Children verified and linked to your parent account.'
-},
+  students:{
+    title:'Students',
+    path:'/api/students',
+    roles:[
+      'SCHOOL_ADMIN',
+      'DEPUTY',
+      'SENIOR_MANAGER',
+      'SECRETARY',
+      'TEACHER'
+    ],
+    description:
+      'Student records according to your assigned responsibilities.'
+  },
 
-subjects:{
-  title:'Subjects',
-  path:'/api/subjects',
-  roles:[
-    'SCHOOL_ADMIN',
-    'SECRETARY',
-    'TEACHER'
-  ],
-  description:
-    'Subjects and class mappings.',
-  form:'subject'
-},
+  subjects:{
+    title:'Subjects',
+    path:'/api/subjects',
+    roles:[
+      'SCHOOL_ADMIN',
+      'DEPUTY',
+      'SENIOR_MANAGER',
+      'SECRETARY',
+      'TEACHER'
+    ],
+    description:
+      'School subjects and academic mappings.',
+    form:'subject'
+  },
 
-assignments:{
-  title:'Teacher Assignments',
-  path:'/api/teacher-assignments',
-  roles:['SCHOOL_ADMIN','TEACHER'],
-  description:
-    'Teacher subject and class assignments.',
-  form:'assignment'
-},
+  assignments:{
+    title:'Teacher Assignments',
+    path:'/api/teacher-assignments',
+    roles:[
+      'SCHOOL_ADMIN',
+      'DEPUTY',
+      'SENIOR_MANAGER',
+      'TEACHER'
+    ],
+    description:
+      'Teacher subject and class assignments.',
+    form:'assignment'
+  },
 
-marks:{
-  title:'Marks & Academics',
-  path:'/api/marks',
-  roles:[
-    'SCHOOL_ADMIN',
-    'SECRETARY',
-    'TEACHER',
-    'PARENT'
-  ],
-  description:
-    'Academic results according to your account permissions.',
-  form:'mark'
-},
+  marks:{
+    title:'Marks & Academics',
+    path:'/api/marks',
+    roles:[
+      'SCHOOL_ADMIN',
+      'DEPUTY',
+      'SENIOR_MANAGER',
+      'TEACHER'
+    ],
+    description:
+      'Academic results according to your permissions.',
+    form:'mark'
+  },
 
-attendance:{
-  title:'Attendance',
-  path:'/api/attendance',
-  roles:[
-    'SCHOOL_ADMIN',
-    'SECRETARY',
-    'TEACHER',
-    'PARENT'
-  ],
-  description:
-    'School attendance records according to your permissions.',
-  form:'attendance'
-},
+  attendance:{
+    title:'Attendance',
+    path:'/api/attendance',
+    roles:[
+      'SCHOOL_ADMIN',
+      'DEPUTY',
+      'SENIOR_MANAGER',
+      'SECRETARY',
+      'TEACHER'
+    ],
+    description:
+      'Attendance according to your assigned responsibilities.',
+    form:'attendance'
+  },
 
-fees:{
-  title:'Fees & Payments',
-  path:'/api/fees',
-  roles:[
-    'SCHOOL_ADMIN',
-    'FINANCE_OFFICE',
-    'PARENT'
-  ],
-  description:
-    'School fees, payments, balances and financial records.',
-  form:'fee'
-},
+  fees:{
+    title:'Fees & Payment Records',
+    path:'/api/fees',
+    roles:[
+      'SCHOOL_ADMIN',
+      'FINANCE_OFFICE'
+    ],
+    description:
+      'Fee balances, confirmed payment records and financial reporting.',
+    form:'fee'
+  },
 
-announcements:{
-  title:'Announcements',
-  path:'/api/announcements',
-  roles:[
-    'SCHOOL_ADMIN',
-    'SECRETARY',
-    'TEACHER',
-    'PARENT'
-  ],
-  description:
-    'School notices and communication.',
-  form:'announcement'
-},
+  announcements:{
+    title:'Announcements',
+    path:'/api/announcements',
+    roles:[
+      'SCHOOL_ADMIN',
+      'DEPUTY',
+      'SENIOR_MANAGER',
+      'SECRETARY',
+      'FINANCE_OFFICE',
+      'TEACHER'
+    ],
+    description:
+      'School notices and communication.',
+    form:'announcement'
+  },
 
-reports:{
-  title:'Reports',
-  path:'/api/reports',
-  roles:[
-    'SCHOOL_ADMIN',
-    'SECRETARY',
-    'FINANCE_OFFICE',
-    'PARENT'
-  ],
-  description:
-    'Reports available to your account.'
-},
+  reports:{
+    title:'Reports',
+    path:'/api/reports',
+    roles:[
+      'SCHOOL_ADMIN',
+      'DEPUTY',
+      'SENIOR_MANAGER',
+      'SECRETARY',
+      'FINANCE_OFFICE'
+    ],
+    description:
+      'Reports available according to your role.'
+  },
 
-approvals:{
-  title:'User Approvals',
-  path:null,
-  roles:['SCHOOL_ADMIN'],
-  description:
-    'Approve Secretary, Finance Office, Teacher and Parent access.',
-  special:'approvals'
-},
+  approvals:{
+    title:'Staff & Access',
+    path:null,
+    roles:['SCHOOL_ADMIN'],
+    description:
+      'Manage authorized school accounts and staff access.',
+    special:'approvals'
+  },
 
-accounts:{
-  title:'School Accounts',
-  path:'/api/users',
-  roles:['SCHOOL_ADMIN'],
-  description:
-    'Manage accounts belonging to this school.',
-  form:'reset'
-}
+  accounts:{
+    title:'Account Recovery',
+    path:'/api/users',
+    roles:['SCHOOL_ADMIN'],
+    description:
+      'Protected school account recovery.',
+    form:'reset'
+  }
 
 };
 
-
-function canEditProfile(){
-  return [
-    'SCHOOL_ADMIN',
-    'SECRETARY'
-  ].includes(me.role);
+function schoolOperational(){
+  return Boolean(
+    me?.school_access?.active
+  );
 }
 
+function canEditProfile(){
+  return (
+    me?.role === 'SECRETARY' &&
+    schoolOperational()
+  );
+}
 
 const forms = {
 
@@ -606,11 +716,7 @@ Student ID
 
 <label>
 Date
-<input
-name="attendance_date"
-type="date"
-required
-value="${new Date().toISOString().slice(0,10)}">
+<input name="attendance_date" type="date" required>
 </label>
 
 <label>
@@ -645,17 +751,13 @@ Entry type
 </label>
 
 <label>
-Amount (KES)
+Amount
 <input name="amount" type="number" min="0.01" step="0.01" required>
 </label>
 
 <label>
 Date
-<input
-name="transaction_date"
-type="date"
-value="${new Date().toISOString().slice(0,10)}"
-required>
+<input name="transaction_date" type="date" required>
 </label>
 
 <label>
@@ -698,17 +800,17 @@ Target account ID
 </label>
 
 <label>
-New password (12+ characters)
+New password
 <input
 name="new_password"
 type="password"
 minlength="12"
-required>
+required
+placeholder="Minimum 12 characters">
 </label>
 `
 
 };
-
 
 const postPaths = {
   subject:'/api/subjects',
@@ -720,896 +822,1175 @@ const postPaths = {
   reset:'/api/auth/admin-reset-password'
 };
 
+async function api(path, options={}) {
 
-async function api(path,options={}){
+  const response =
+    await fetch(path,{
+      credentials:'same-origin',
+      cache:'no-store',
+      ...options,
+      headers:{
+        ...(options.body
+          ? {'Content-Type':'application/json'}
+          : {}),
+        ...(options.headers || {})
+      }
+    });
 
-const response =
-  await fetch(path,{
-    credentials:'same-origin',
-    cache:'no-store',
-    ...options,
+  const data =
+    await response.json()
+      .catch(()=>({
+        error:`Unexpected response (${response.status})`
+      }));
 
-    headers:{
-      ...(options.body
-        ? {'Content-Type':'application/json'}
-        : {}),
-      ...(options.headers || {})
-    }
-  });
+  if(!response.ok){
+    throw new Error(
+      data.error ||
+      `Request failed (${response.status})`
+    );
+  }
 
-
-const data =
-  await response.json()
-  .catch(()=>({
-    error:`Unexpected response (${response.status})`
-  }));
-
-
-if(!response.ok)
-  throw new Error(
-    data.error ||
-    `Request failed (${response.status})`
-  );
-
-return data;
-
+  return data;
 }
-
 
 function say(text,error=false){
 
-const message = $('#message');
+  const message = $('#message');
 
-message.hidden = !text;
+  message.hidden = !text;
 
-message.classList.toggle(
-  'err',
-  error
-);
+  message.classList.toggle(
+    'err',
+    error
+  );
 
-message.textContent = text;
-
+  message.textContent = text;
 }
-
 
 function modulesAvailable(){
 
-return Object.keys(modules)
-  .filter(
-    key =>
-      modules[key].roles.includes(me.role)
-  );
-
+  return Object.keys(modules)
+    .filter(
+      key =>
+        modules[key].roles.includes(me.role)
+    );
 }
-
 
 function drawNav(){
 
-const list =
-  modulesAvailable();
+  const list =
+    modulesAvailable();
 
-$('#nav').innerHTML =
-  list.map(
-    key => `
-      <button
-        data-key="${key}"
-        class="${current===key?'active':''}">
-        ${esc(modules[key].title)}
-      </button>
-    `
-  ).join('');
+  $('#nav').innerHTML =
+    list.map(
+      key => `
+        <button
+          data-key="${key}"
+          class="${current===key?'active':''}">
+          ${esc(modules[key].title)}
+        </button>
+      `
+    ).join('');
 
-
-$('#nav')
-  .querySelectorAll('button')
-  .forEach(
-    button =>
-      button.addEventListener(
-        'click',
-        () => open(button.dataset.key)
-      )
-  );
-
+  $('#nav')
+    .querySelectorAll('button')
+    .forEach(
+      button =>
+        button.addEventListener(
+          'click',
+          () => open(button.dataset.key)
+        )
+    );
 }
 
+function renderAccessStatus(){
+
+  const box =
+    $('#accessStatus');
+
+  const access =
+    me.school_access || {};
+
+  const status =
+    access.status ||
+    'NOT_ACTIVATED';
+
+  box.hidden = false;
+
+  box.className =
+    'statusbox';
+
+  if(status === 'ACTIVE'){
+    box.classList.add(
+      'status-active'
+    );
+  }
+
+  else if(status === 'TESTING'){
+    box.classList.add(
+      'status-testing'
+    );
+  }
+
+  else{
+    box.classList.add(
+      'status-restricted'
+    );
+  }
+
+  const until =
+    access.paid_until
+      ? ` · Until ${access.paid_until}`
+      : '';
+
+  box.innerHTML = `
+    <span>
+      Liffan School Access:
+      ${esc(status)}
+      ${esc(until)}
+    </span>
+
+    ${
+      me.role === 'SCHOOL_ADMIN'
+      ? `
+        <button
+          id="accessButton"
+          class="mutebtn">
+          Access & Support
+        </button>
+      `
+      : ''
+    }
+  `;
+
+  const button =
+    $('#accessButton');
+
+  if(button){
+    button.addEventListener(
+      'click',
+      () => open('subscription')
+    );
+  }
+}
 
 function updateSchoolHeader(school){
 
-if(!school) return;
+  if(!school) return;
 
-schoolProfile = school;
+  schoolProfile = school;
 
-$('#title').textContent =
-  school.name || 'School Dashboard';
+  $('#title').textContent =
+    school.name ||
+    'School Dashboard';
 
-$('#identity').textContent =
-  `${me.full_name} · ${me.role}`;
+  $('#identity').textContent =
+    `${me.full_name} · ${me.role}`;
 
+  const logo =
+    $('#schoolLogo');
 
-const logo =
-  $('#schoolLogo');
+  const placeholder =
+    $('#logoPlaceholder');
 
-const placeholder =
-  $('#logoPlaceholder');
+  if(school.logo_url){
 
+    logo.src =
+      school.logo_url;
 
-if(school.logo_url){
+    logo.style.display =
+      'block';
 
-logo.src =
-  school.logo_url;
+    placeholder.style.display =
+      'none';
 
-logo.style.display =
-  'block';
+  }else{
 
-placeholder.style.display =
-  'none';
+    logo.style.display =
+      'none';
 
-}else{
+    placeholder.style.display =
+      'grid';
 
-logo.style.display =
-  'none';
-
-placeholder.style.display =
-  'grid';
-
-placeholder.textContent =
-  String(
-    school.name || 'S'
-  )
-  .trim()
-  .charAt(0)
-  .toUpperCase();
-
+    placeholder.textContent =
+      String(
+        school.name || 'S'
+      )
+      .trim()
+      .charAt(0)
+      .toUpperCase();
+  }
 }
-
-}
-
 
 async function loadSchoolIdentity(){
 
-try{
+  const data =
+    await api(
+      '/api/school-profile'
+    );
 
-const data =
-  await api('/api/school-profile');
-
-updateSchoolHeader(
-  data.school
-);
-
-}catch(error){
-
-$('#title').textContent =
-  'School Dashboard';
-
-$('#identity').textContent =
-  `${me.full_name} · ${me.role}`;
-
+  updateSchoolHeader(
+    data.school
+  );
 }
 
+function renderHome(){
+
+  const access =
+    me.school_access || {};
+
+  let warning = '';
+
+  if(!access.active){
+
+    warning = `
+      <div class="notice warning">
+        <strong>
+          School operational access is currently
+          ${esc(access.status || 'restricted')}.
+        </strong>
+
+        ${
+          me.role === 'SCHOOL_ADMIN'
+          ? `
+            <p>
+              Your account is still signed in.
+              Open Liffan Access & Support to review
+              the school's access period and contact
+              Liffan administration.
+            </p>
+          `
+          : `
+            <p>
+              Your account remains valid, but some
+              school operations are currently restricted.
+              Please contact your School Administrator.
+            </p>
+          `
+        }
+      </div>
+    `;
+  }
+
+  const roleText = {
+
+    SCHOOL_ADMIN:
+      'Principal / Headteacher oversight, staff access, school management and Liffan subscription support.',
+
+    DEPUTY:
+      'Management oversight according to responsibilities assigned by the Principal.',
+
+    SENIOR_MANAGER:
+      'Senior management workspace according to assigned responsibilities.',
+
+    SECRETARY:
+      'Admissions, student administration, school profile, public information and announcements.',
+
+    FINANCE_OFFICE:
+      'Fee balances, confirmed payment records, statements and financial reporting.',
+
+    TEACHER:
+      'Assigned classes, attendance, marks and academic work.'
+
+  }[me.role] ||
+  'School workspace';
+
+  $('#contentSlot').innerHTML = `
+
+    ${warning}
+
+    <div class="dashboard-grid">
+
+      <div class="dashboard-card">
+        <h3>Signed in as</h3>
+        <p>
+          ${esc(me.full_name)}
+          <br>
+          ${esc(me.role)}
+        </p>
+      </div>
+
+      <div class="dashboard-card">
+        <h3>Your responsibility</h3>
+        <p>${esc(roleText)}</p>
+      </div>
+
+      <div class="dashboard-card">
+        <h3>School access</h3>
+        <p>
+          ${esc(access.status || 'NOT_ACTIVATED')}
+          ${
+            access.paid_until
+            ? `<br>Until ${esc(access.paid_until)}`
+            : ''
+          }
+        </p>
+      </div>
+
+    </div>
+
+    <div class="fee-notice">
+      <strong>Important Fee Notice:</strong>
+      All school fees must be paid through the school's
+      authorized bank payment channels.
+      Liffan does not receive or process school fee payments.
+      If there is a payment issue, missing payment record,
+      or fee-balance concern, contact the school
+      administration through the Finance Office.
+    </div>
+  `;
+
+  $('#output').textContent =
+    JSON.stringify(
+      {
+        signed_in:true,
+        school:
+          schoolProfile?.name ||
+          me.school_id,
+        user:me.full_name,
+        role:me.role,
+        school_access:
+          me.school_access,
+        available_modules:
+          modulesAvailable()
+            .map(
+              key =>
+                modules[key].title
+            )
+      },
+      null,
+      2
+    );
 }
 
+function renderSubscription(){
+
+  const access =
+    me.school_access || {};
+
+  $('#contentSlot').innerHTML = `
+
+    <div class="profile">
+
+      <div class="profile-card">
+        <strong>Status</strong>
+        ${esc(access.status || 'NOT_ACTIVATED')}
+      </div>
+
+      <div class="profile-card">
+        <strong>Plan</strong>
+        ${esc(access.plan || '—')}
+      </div>
+
+      <div class="profile-card">
+        <strong>Access until</strong>
+        ${esc(access.paid_until || '—')}
+      </div>
+
+    </div>
+
+    <div class="notice">
+      <strong>Liffan Support</strong>
+
+      <p>
+        This area belongs to the School Administrator.
+        Renewal, activation and support requests can be
+        handled from the school's own account.
+      </p>
+
+      <p>
+        You do not need access to the Liffan Platform
+        Administrator workspace.
+      </p>
+    </div>
+
+    <div class="notice warning">
+      If school access expires or is suspended,
+      school records are not deleted.
+      Liffan can restore access without recreating
+      the school or its accounts.
+    </div>
+  `;
+
+  $('#output').textContent =
+    JSON.stringify(
+      {
+        school_id:me.school_id,
+        school_access:access
+      },
+      null,
+      2
+    );
+}
 
 function renderProfile(data){
 
-const school =
-  data.school || {};
-
-const photos =
-  data.photos || [];
-
-updateSchoolHeader(school);
-
-
-let html = `
-
-<div class="profile">
-
-<div class="profile-card">
-<strong>School</strong>
-${esc(school.name || '—')}
-</div>
-
-<div class="profile-card">
-<strong>Type</strong>
-${esc(school.school_type || '—')}
-</div>
-
-<div class="profile-card">
-<strong>Location</strong>
-${esc(school.location || '—')}
-</div>
-
-<div class="profile-card">
-<strong>Motto</strong>
-${esc(school.motto || '—')}
-</div>
-
-<div class="profile-card">
-<strong>Phone</strong>
-${esc(school.phone || '—')}
-</div>
-
-<div class="profile-card">
-<strong>Email</strong>
-${esc(school.email || '—')}
-</div>
-
-</div>
-`;
-
-
-if(canEditProfile()){
-
-html += `
-
-<h3>Edit School Profile</h3>
-
-<form id="profileForm">
-
-<label>
-School name
-<input
-name="name"
-value="${esc(school.name || '')}"
-required>
-</label>
-
-<label>
-School type
-<input
-name="school_type"
-value="${esc(school.school_type || '')}">
-</label>
-
-<label>
-Location
-<input
-name="location"
-value="${esc(school.location || '')}">
-</label>
-
-<label>
-Motto
-<input
-name="motto"
-value="${esc(school.motto || '')}">
-</label>
-
-<label>
-Phone
-<input
-name="phone"
-value="${esc(school.phone || '')}">
-</label>
-
-<label>
-Email
-<input
-name="email"
-type="email"
-value="${esc(school.email || '')}">
-</label>
-
-<label>
-Website
-<input
-name="website"
-value="${esc(school.website || '')}"
-placeholder="https://...">
-</label>
-
-<label>
-Logo image URL
-<input
-name="logo_url"
-value="${esc(school.logo_url || '')}"
-placeholder="https://...">
-</label>
-
-<label style="grid-column:1/-1">
-School description
-<textarea name="description">${esc(school.description || '')}</textarea>
-</label>
-
-<button type="submit">
-Save School Profile
-</button>
-
-</form>
-
-
-<h3>Add School Photo</h3>
-
-<form id="photoForm">
-
-<label>
-Photo URL
-<input
-name="photo_url"
-required
-placeholder="https://...">
-</label>
-
-<label>
-Caption
-<input
-name="caption"
-maxlength="200">
-</label>
-
-<button type="submit">
-Add Photo
-</button>
-
-</form>
-`;
-
-}
-
-
-html += `<h3>School Photos</h3>`;
-
-
-if(!photos.length){
-
-html += `
-<p class="muted">
-No school photos have been added yet.
-</p>
-`;
-
-}else{
-
-html += `<div class="photos">`;
-
-html += photos.map(
-  photo => `
-
-<div class="photo-card">
-
-<img
-src="${esc(photo.photo_url)}"
-alt="${esc(photo.caption || 'School photo')}">
-
-<div class="photo-info">
-
-<p>
-${esc(photo.caption || 'School photo')}
-</p>
-
-${canEditProfile()
-? `
-<button
-class="danger deletePhoto"
-data-id="${esc(photo.id)}">
-Remove
-</button>
-`
-: ''}
-
-</div>
-
-</div>
-
-`
-).join('');
-
-html += `</div>`;
-
-}
-
-
-$('#contentSlot').innerHTML =
-  html;
-
-$('#output').textContent =
-  JSON.stringify(
-    {
-      school,
-      photo_count:photos.length
-    },
-    null,
-    2
-  );
-
-
-const profileForm =
-  $('#profileForm');
-
-
-if(profileForm){
-
-profileForm.addEventListener(
-'submit',
-async event => {
-
-event.preventDefault();
-
-const body =
-  Object.fromEntries(
-    new FormData(profileForm).entries()
-  );
-
-body.action =
-  'UPDATE_PROFILE';
-
-try{
-
-await api(
-  '/api/school-profile',
-  {
-    method:'POST',
-    body:JSON.stringify(body)
+  const school =
+    data.school || {};
+
+  const photos =
+    data.photos || [];
+
+  updateSchoolHeader(school);
+
+  let html = `
+
+  <div class="profile">
+
+    <div class="profile-card">
+      <strong>School</strong>
+      ${esc(school.name || '—')}
+    </div>
+
+    <div class="profile-card">
+      <strong>Type</strong>
+      ${esc(school.school_type || '—')}
+    </div>
+
+    <div class="profile-card">
+      <strong>Location</strong>
+      ${esc(school.location || '—')}
+    </div>
+
+    <div class="profile-card">
+      <strong>Motto</strong>
+      ${esc(school.motto || '—')}
+    </div>
+
+    <div class="profile-card">
+      <strong>Phone</strong>
+      ${esc(school.phone || '—')}
+    </div>
+
+    <div class="profile-card">
+      <strong>Email</strong>
+      ${esc(school.email || '—')}
+    </div>
+
+  </div>
+  `;
+
+  if(canEditProfile()){
+
+    html += `
+
+    <h3>Edit School Profile</h3>
+
+    <form id="profileForm">
+
+      <label>
+        School name
+        <input
+          name="name"
+          value="${esc(school.name || '')}"
+          required>
+      </label>
+
+      <label>
+        School type
+        <input
+          name="school_type"
+          value="${esc(school.school_type || '')}">
+      </label>
+
+      <label>
+        Location
+        <input
+          name="location"
+          value="${esc(school.location || '')}">
+      </label>
+
+      <label>
+        Motto
+        <input
+          name="motto"
+          value="${esc(school.motto || '')}">
+      </label>
+
+      <label>
+        Phone
+        <input
+          name="phone"
+          value="${esc(school.phone || '')}">
+      </label>
+
+      <label>
+        Email
+        <input
+          name="email"
+          type="email"
+          value="${esc(school.email || '')}">
+      </label>
+
+      <label>
+        Website
+        <input
+          name="website"
+          value="${esc(school.website || '')}">
+      </label>
+
+      <label>
+        Logo image URL
+        <input
+          name="logo_url"
+          value="${esc(school.logo_url || '')}">
+      </label>
+
+      <label style="grid-column:1/-1">
+        School description
+        <textarea name="description">${esc(school.description || '')}</textarea>
+      </label>
+
+      <button type="submit">
+        Save School Profile
+      </button>
+
+    </form>
+
+    <h3>Add School Photo</h3>
+
+    <form id="photoForm">
+
+      <label>
+        Photo URL
+        <input
+          name="photo_url"
+          required>
+      </label>
+
+      <label>
+        Caption
+        <input
+          name="caption"
+          maxlength="200">
+      </label>
+
+      <button type="submit">
+        Add Photo
+      </button>
+
+    </form>
+    `;
   }
-);
 
-say(
-  'School profile updated successfully.'
-);
+  html += `
+    <h3>School Photos</h3>
+  `;
 
-await loadSchoolIdentity();
-await load();
+  if(!photos.length){
 
-}catch(error){
+    html += `
+      <p class="muted">
+        No school photos have been added yet.
+      </p>
+    `;
 
-say(
-  error.message,
-  true
-);
+  }else{
 
-}
+    html += `<div class="photos">`;
 
-}
-);
+    html += photos.map(
+      photo => `
 
-}
+        <div class="photo-card">
 
+          <img
+            src="${esc(photo.photo_url)}"
+            alt="${esc(photo.caption || 'School photo')}">
 
-const photoForm =
-  $('#photoForm');
+          <div class="photo-info">
 
+            <p>
+              ${esc(photo.caption || 'School photo')}
+            </p>
 
-if(photoForm){
+            ${
+              canEditProfile()
+              ? `
+                <button
+                  class="danger deletePhoto"
+                  data-id="${esc(photo.id)}">
+                  Remove
+                </button>
+              `
+              : ''
+            }
 
-photoForm.addEventListener(
-'submit',
-async event => {
+          </div>
 
-event.preventDefault();
+        </div>
+      `
+    ).join('');
 
-const body =
-  Object.fromEntries(
-    new FormData(photoForm).entries()
-  );
-
-body.action =
-  'ADD_PHOTO';
-
-try{
-
-await api(
-  '/api/school-profile',
-  {
-    method:'POST',
-    body:JSON.stringify(body)
+    html += `</div>`;
   }
-);
 
-say(
-  'School photo added successfully.'
-);
+  $('#contentSlot').innerHTML =
+    html;
 
-photoForm.reset();
+  $('#output').textContent =
+    JSON.stringify(
+      {
+        school,
+        photo_count:
+          photos.length
+      },
+      null,
+      2
+    );
 
-await load();
+  const profileForm =
+    $('#profileForm');
 
-}catch(error){
+  if(profileForm){
 
-say(
-  error.message,
-  true
-);
+    profileForm.addEventListener(
+      'submit',
+      async event => {
 
-}
+        event.preventDefault();
 
-}
-);
+        const body =
+          Object.fromEntries(
+            new FormData(
+              profileForm
+            ).entries()
+          );
 
-}
+        body.action =
+          'UPDATE_PROFILE';
 
+        try{
 
-document
-.querySelectorAll('.deletePhoto')
-.forEach(
-button =>
-  button.addEventListener(
-  'click',
-  async()=>{
+          await api(
+            '/api/school-profile',
+            {
+              method:'POST',
+              body:
+                JSON.stringify(body)
+            }
+          );
 
-  if(
-    !confirm(
-      'Remove this school photo?'
+          say(
+            'School profile updated successfully.'
+          );
+
+          await loadSchoolIdentity();
+          await load();
+
+        }catch(error){
+
+          say(
+            error.message,
+            true
+          );
+        }
+      }
+    );
+  }
+
+  const photoForm =
+    $('#photoForm');
+
+  if(photoForm){
+
+    photoForm.addEventListener(
+      'submit',
+      async event => {
+
+        event.preventDefault();
+
+        const body =
+          Object.fromEntries(
+            new FormData(
+              photoForm
+            ).entries()
+          );
+
+        body.action =
+          'ADD_PHOTO';
+
+        try{
+
+          await api(
+            '/api/school-profile',
+            {
+              method:'POST',
+              body:
+                JSON.stringify(body)
+            }
+          );
+
+          say(
+            'School photo added successfully.'
+          );
+
+          photoForm.reset();
+
+          await load();
+
+        }catch(error){
+
+          say(
+            error.message,
+            true
+          );
+        }
+      }
+    );
+  }
+
+  document
+    .querySelectorAll(
+      '.deletePhoto'
     )
-  ) return;
+    .forEach(
+      button =>
+        button.addEventListener(
+          'click',
+          async () => {
 
-  try{
+            if(
+              !confirm(
+                'Remove this school photo?'
+              )
+            ){
+              return;
+            }
 
-  await api(
-    '/api/school-profile',
-    {
-      method:'POST',
+            try{
 
-      body:JSON.stringify({
-        action:'DELETE_PHOTO',
-        photo_id:button.dataset.id
-      })
-    }
-  );
+              await api(
+                '/api/school-profile',
+                {
+                  method:'POST',
+                  body:
+                    JSON.stringify({
+                      action:
+                        'DELETE_PHOTO',
+                      photo_id:
+                        button.dataset.id
+                    })
+                }
+              );
 
-  say(
-    'School photo removed.'
-  );
+              say(
+                'School photo removed.'
+              );
 
-  await load();
+              await load();
 
-  }catch(error){
+            }catch(error){
 
-  say(
-    error.message,
-    true
-  );
-
-  }
-
-  }
-  )
-);
-
+              say(
+                error.message,
+                true
+              );
+            }
+          }
+        )
+    );
 }
-
 
 function renderApprovals(){
 
-$('#contentSlot').innerHTML = `
+  $('#contentSlot').innerHTML = `
 
-<div class="profile-card">
+    <div class="profile-card">
 
-<span class="badge">
-SCHOOL ADMIN ONLY
-</span>
+      <span class="badge">
+        SCHOOL ADMIN ONLY
+      </span>
 
-<h3>
-School User Management
-</h3>
+      <h3>
+        School Staff & Access
+      </h3>
 
-<p class="muted">
-Approve Secretary, Finance Office,
-Teacher and Parent accounts belonging
-to this school.
-</p>
+      <p class="muted">
+        Manage authorized staff accounts belonging
+        only to this school.
+      </p>
 
-<div class="actions">
+      <div class="actions">
 
-<a
-class="btn"
-href="/role-review.html">
-Review Account Requests
-</a>
+        <a
+          class="btn"
+          href="/role-review.html">
+          Review Account Requests
+        </a>
 
-<a
-class="btn mutebtn"
-href="/role-register.html">
-Register / Request School User
-</a>
+        <a
+          class="btn mutebtn"
+          href="/role-register.html">
+          Register / Request Staff
+        </a>
 
-</div>
+      </div>
 
-</div>
-`;
+    </div>
+  `;
 
-$('#output').textContent =
-  'School user approvals are restricted to the School Administrator.';
-
+  $('#output').textContent =
+    'School staff management is restricted to the School Administrator.';
 }
-
 
 function shownData(data){
 
-const copy = {
-  ...data
-};
+  const copy = {
+    ...data
+  };
 
-delete copy.ok;
+  delete copy.ok;
 
-$('#output').textContent =
-  JSON.stringify(
-    copy,
-    null,
-    2
-  );
-
+  $('#output').textContent =
+    JSON.stringify(
+      copy,
+      null,
+      2
+    );
 }
-
 
 async function load(){
 
-say('');
+  say('');
 
-$('#contentSlot').innerHTML =
-  '';
+  $('#contentSlot').innerHTML =
+    '';
 
+  if(current === 'home'){
+    renderHome();
+    return;
+  }
 
-if(current === 'home'){
+  if(current === 'subscription'){
+    renderSubscription();
+    return;
+  }
 
-const data = {
-  school:
-    schoolProfile?.name ||
-    me.school_id,
+  if(current === 'approvals'){
+    renderApprovals();
+    return;
+  }
 
-  signed_in_as:
-    me.full_name,
+  const module =
+    modules[current];
 
-  role:
-    me.role,
+  if(!module){
+    throw new Error(
+      'Dashboard module was not found.'
+    );
+  }
 
-  available_modules:
-    modulesAvailable()
-      .map(
-        key =>
-          modules[key].title
-      )
-};
+  if(module.special === 'profile'){
 
-$('#output').textContent =
-  JSON.stringify(
-    data,
-    null,
-    2
-  );
+    const data =
+      await api(
+        '/api/school-profile'
+      );
 
-return;
+    renderProfile(data);
+    return;
+  }
 
+  const data =
+    await api(module.path);
+
+  shownData(data);
 }
 
+function mayShowForm(module){
 
-if(current === 'approvals'){
+  if(!module.form){
+    return false;
+  }
 
-renderApprovals();
+  if(!schoolOperational()){
+    return false;
+  }
 
-return;
+  if(module.form === 'fee'){
+    return (
+      me.role ===
+      'FINANCE_OFFICE'
+    );
+  }
 
+  if(module.form === 'reset'){
+    return (
+      me.role ===
+      'SCHOOL_ADMIN'
+    );
+  }
+
+  if(module.form === 'assignment'){
+    return (
+      me.role === 'SCHOOL_ADMIN' ||
+      me.role === 'DEPUTY' ||
+      me.role === 'SENIOR_MANAGER'
+    );
+  }
+
+  if(module.form === 'subject'){
+    return (
+      me.role === 'SECRETARY' ||
+      me.role === 'SCHOOL_ADMIN' ||
+      me.role === 'DEPUTY' ||
+      me.role === 'SENIOR_MANAGER'
+    );
+  }
+
+  if(module.form === 'mark'){
+    return (
+      me.role === 'TEACHER'
+    );
+  }
+
+  if(module.form === 'attendance'){
+    return (
+      me.role === 'TEACHER'
+    );
+  }
+
+  if(module.form === 'announcement'){
+    return (
+      me.role === 'SECRETARY' ||
+      me.role === 'SCHOOL_ADMIN' ||
+      me.role === 'DEPUTY' ||
+      me.role === 'SENIOR_MANAGER'
+    );
+  }
+
+  return false;
 }
-
-
-const module =
-  modules[current];
-
-
-if(module.special === 'profile'){
-
-const data =
-  await api(
-    '/api/school-profile'
-  );
-
-renderProfile(data);
-
-return;
-
-}
-
-
-const data =
-  await api(module.path);
-
-shownData(data);
-
-}
-
 
 async function open(key){
 
-current = key;
+  current = key;
 
-drawNav();
+  drawNav();
 
-const module =
-  modules[key];
+  const module =
+    modules[key];
 
-$('#moduleTitle').textContent =
-  module.title;
+  $('#moduleTitle').textContent =
+    module.title;
 
-$('#description').textContent =
-  module.description;
+  $('#description').textContent =
+    module.description;
 
-$('#formSlot').innerHTML = '';
+  $('#formSlot').innerHTML =
+    '';
 
-$('#contentSlot').innerHTML = '';
+  $('#contentSlot').innerHTML =
+    '';
 
+  if(
+    !schoolOperational() &&
+    ![
+      'home',
+      'subscription'
+    ].includes(key)
+  ){
 
-/*
-Parents must never receive data-entry
-forms from the frontend.
-*/
-let showForm =
-  module.form &&
-  me.role !== 'PARENT';
+    $('#contentSlot').innerHTML = `
+      <div class="notice warning">
 
+        <strong>
+          School operations are currently restricted.
+        </strong>
 
-/*
-Teachers should not create subjects
-or teacher assignments.
-*/
-if(
-  me.role === 'TEACHER' &&
-  ['subject','assignment'].includes(
-    module.form
-  )
-){
-  showForm = false;
-}
+        <p>
+          Your login account remains valid and
+          no school records have been deleted.
+        </p>
 
+        ${
+          me.role === 'SCHOOL_ADMIN'
+          ? `
+            <button id="restrictedSupport">
+              Open Liffan Access & Support
+            </button>
+          `
+          : `
+            <p>
+              Contact your School Administrator
+              for assistance.
+            </p>
+          `
+        }
 
-/*
-Only School Admin manages assignments.
-*/
-if(
-  module.form === 'assignment' &&
-  me.role !== 'SCHOOL_ADMIN'
-){
-  showForm = false;
-}
+      </div>
+    `;
 
+    $('#output').textContent =
+      JSON.stringify(
+        {
+          signed_in:true,
+          access:
+            me.school_access
+        },
+        null,
+        2
+      );
 
-/*
-Only School Admin can reset accounts.
-*/
-if(
-  module.form === 'reset' &&
-  me.role !== 'SCHOOL_ADMIN'
-){
-  showForm = false;
-}
+    const support =
+      $('#restrictedSupport');
 
-
-if(showForm){
-
-$('#formSlot').innerHTML =
-  `
-  <form id="entryForm">
-
-  ${forms[module.form]}
-
-  <button type="submit">
-  Save
-  </button>
-
-  </form>
-  `;
-
-}
-
-
-try{
-
-await load();
-
-}catch(error){
-
-say(
-  error.message,
-  true
-);
-
-$('#output').textContent =
-  '';
-
-}
-
-
-const form =
-  $('#entryForm');
-
-
-if(form){
-
-form.addEventListener(
-'submit',
-async event => {
-
-event.preventDefault();
-
-const body =
-  Object.fromEntries(
-    new FormData(form).entries()
-  );
-
-
-for(
-  const key of [
-    'score',
-    'max_score',
-    'amount',
-    'can_mark',
-    'can_attend'
-  ]
-){
-
-if(body[key] !== undefined)
-  body[key] =
-    Number(body[key]);
-
-}
-
-
-try{
-
-const data =
-  await api(
-    postPaths[module.form],
-    {
-      method:'POST',
-      body:JSON.stringify(body)
+    if(support){
+      support.addEventListener(
+        'click',
+        () => open('subscription')
+      );
     }
-  );
 
+    return;
+  }
 
-say(
-  data.message ||
-  'Saved successfully.'
-);
+  const showForm =
+    mayShowForm(module);
 
+  if(showForm){
 
-await load();
+    $('#formSlot').innerHTML = `
+      <form id="entryForm">
 
-}catch(error){
+        ${forms[module.form]}
 
-say(
-  error.message,
-  true
-);
+        <button type="submit">
+          Save
+        </button>
 
+      </form>
+    `;
+
+    const dateInput =
+      $('#entryForm input[type="date"]');
+
+    if(dateInput && !dateInput.value){
+      dateInput.value =
+        new Date()
+          .toISOString()
+          .slice(0,10);
+    }
+  }
+
+  try{
+
+    await load();
+
+  }catch(error){
+
+    say(
+      error.message,
+      true
+    );
+
+    $('#output').textContent =
+      '';
+  }
+
+  const form =
+    $('#entryForm');
+
+  if(form){
+
+    form.addEventListener(
+      'submit',
+      async event => {
+
+        event.preventDefault();
+
+        const body =
+          Object.fromEntries(
+            new FormData(form)
+              .entries()
+          );
+
+        for(
+          const key of [
+            'score',
+            'max_score',
+            'amount',
+            'can_mark',
+            'can_attend'
+          ]
+        ){
+          if(
+            body[key] !== undefined
+          ){
+            body[key] =
+              Number(body[key]);
+          }
+        }
+
+        try{
+
+          const data =
+            await api(
+              postPaths[
+                module.form
+              ],
+              {
+                method:'POST',
+                body:
+                  JSON.stringify(body)
+              }
+            );
+
+          say(
+            data.message ||
+            'Saved successfully.'
+          );
+
+          await load();
+
+        }catch(error){
+
+          say(
+            error.message,
+            true
+          );
+        }
+      }
+    );
+  }
 }
-
-}
-);
-
-}
-
-}
-
 
 (async () => {
 
-  try {
+  try{
 
-    /*
-     * STEP 1:
-     * Verify the login session only.
-     */
-    const data = await api('/api/auth/me');
+    const data =
+      await api(
+        '/api/auth/me'
+      );
 
-    me = data.user;
+    me =
+      data.user;
 
-    if (!me) {
-      location.replace('/school-login.html');
+    if(!me){
+      location.replace(
+        '/school-login.html'
+      );
       return;
     }
 
     /*
-     * Platform Admin does not use
-     * the school workspace.
+     * Platform Administrator must NEVER
+     * use or enter a school workspace.
      */
-    if (me.role === 'PLATFORM_ADMIN') {
-      location.replace('/platform-schools.html');
+    if(
+      me.role ===
+      'PLATFORM_ADMIN'
+    ){
+      location.replace(
+        '/platform-schools.html'
+      );
       return;
     }
 
-    /*
-     * School users must belong
-     * to a school.
-     */
-    if (!me.school_id) {
+    if(!me.school_id){
+
       $('#moduleTitle').textContent =
         'Account configuration problem';
 
@@ -1617,75 +1998,41 @@ say(
         'Your account is signed in but is not assigned to a school.';
 
       $('#output').textContent =
-        JSON.stringify(me, null, 2);
+        JSON.stringify(
+          me,
+          null,
+          2
+        );
 
       return;
     }
 
-    /*
-     * IMPORTANT:
-     * From this point onward we DO NOT
-     * redirect to login if a dashboard
-     * module has an error.
-     */
-
     $('#identity').textContent =
       `${me.full_name} · ${me.role}`;
 
-    $('#title').textContent =
-      'School Dashboard';
+    renderAccessStatus();
 
-    /*
-     * School profile failure must not
-     * destroy a valid login session.
-     */
-    try {
+    try{
+
       await loadSchoolIdentity();
-    } catch (error) {
+
+    }catch(error){
+
       console.error(
         'School identity error:',
         error
       );
+
+      $('#title').textContent =
+        'School Dashboard';
     }
 
     drawNav();
 
-    try {
-      await open('home');
-    } catch (error) {
+    await open('home');
 
-      console.error(
-        'Workspace loading error:',
-        error
-      );
+  }catch(error){
 
-      $('#moduleTitle').textContent =
-        'School Dashboard';
-
-      $('#description').textContent =
-        'You are signed in. A dashboard module could not be loaded.';
-
-      say(
-        error.message,
-        true
-      );
-
-      $('#output').textContent =
-        JSON.stringify(
-          {
-            signed_in: true,
-            user: me
-          },
-          null,
-          2
-        );
-    }
-
-  } catch (error) {
-
-    /*
-     * Only /api/auth/me failure reaches here.
-     */
     console.error(
       'Authentication check failed:',
       error
@@ -1704,45 +2051,41 @@ say(
 
     $('#output').textContent =
       'Authentication failed.';
-
-    /*
-     * DO NOT automatically redirect.
-     * This lets us see the real server error.
-     */
   }
 
 })();
-.addEventListener(
-'click',
-() =>s
-  load()
-  .catch(
-    error =>
-      say(
-        error.message,
-        true
-      )
-  )
-);
 
+$('#refresh')
+.addEventListener(
+  'click',
+  () => {
+    load()
+      .catch(
+        error =>
+          say(
+            error.message,
+            true
+          )
+      );
+  }
+);
 
 $('#logout')
 .addEventListener(
-'click',
-async()=>{
+  'click',
+  async () => {
 
-await fetch(
-  '/api/auth/logout',
-  {
-    method:'POST',
-    credentials:'same-origin'
+    await fetch(
+      '/api/auth/logout',
+      {
+        method:'POST',
+        credentials:'same-origin'
+      }
+    ).catch(()=>{});
+
+    location.href =
+      '/school-login.html';
   }
-).catch(()=>{});
-
-location.href =
-  '/school-login.html';
-
-}
 );
 
 </script>
