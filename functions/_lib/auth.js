@@ -702,4 +702,4 @@ export function pickColumn(
   }
 
   return null;
-}s
+}
