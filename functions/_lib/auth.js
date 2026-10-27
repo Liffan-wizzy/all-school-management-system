@@ -174,25 +174,21 @@ export function getCookie(request, name) {
 
   return null;
 }
-
 export function sessionCookie(
   request,
   token,
-  maxAgeSeconds =
-    SESSION_HOURS * 60 * 60
+  maxAgeSeconds = SESSION_HOURS * 60 * 60
 ) {
-  const secure =
-    new URL(request.url).protocol ===
-    'https:'
-      ? '; Secure'
-      : '';
-
-  return (
-    `${SESSION_COOKIE}=${token}; ` +
-    `HttpOnly; SameSite=Lax; Path=/; ` +
-    `Max-Age=${maxAgeSeconds}${secure}`
-  );
+  return [
+    `${SESSION_COOKIE}=${token}`,
+    'Path=/',
+    `Max-Age=${maxAgeSeconds}`,
+    'HttpOnly',
+    'Secure',
+    'SameSite=Lax'
+  ].join('; ');
 }
+
 
 export async function createSession(
   request,
