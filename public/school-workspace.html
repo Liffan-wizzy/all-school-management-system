@@ -943,7 +943,7 @@ function renderAccessStatus(){
     <span>
       Liffan School Access:
       ${esc(status)}
-      ${esc(until)}
+      ${esc(access.paid_until ? ' · Until ' + access.paid_until : '')}
     </span>
 
     ${
