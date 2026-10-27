@@ -904,7 +904,10 @@ function drawNav(){
 }
 
 function renderAccessStatus(){
-
+  if(me.role !== 'SCHOOL_ADMIN'){
+    $('#accessStatus').hidden = true;
+    return;
+  }
   const box =
     $('#accessStatus');
 
@@ -1106,25 +1109,23 @@ function renderHome(){
         </p>
       </div>
 
-      <div class="dashboard-card">
-        <h3>Your responsibility</h3>
-        <p>${esc(roleText)}</p>
-      </div>
-
-      <div class="dashboard-card">
-        <h3>School access</h3>
-        <p>
-          ${esc(access.status || 'NOT_ACTIVATED')}
-          ${
-            access.paid_until
-            ? `<br>Until ${esc(access.paid_until)}`
-            : ''
-          }
-        </p>
-      </div>
-
-    </div>
-
+           ${
+        me.role === 'SCHOOL_ADMIN'
+        ? `
+          <div class="dashboard-card">
+            <h3>School subscription</h3>
+            <p>
+              ${esc(access.status || 'NOT_ACTIVATED')}
+              ${
+                access.paid_until
+                ? `<br>Until ${esc(access.paid_until)}`
+                : ''
+              }
+            </p>
+          </div>
+        `
+        : ''
+      }
     <div class="fee-notice">
       <strong>Important Fee Notice:</strong>
       All school fees must be paid through the school's
