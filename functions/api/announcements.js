@@ -119,4 +119,3 @@ export async function onRequestPost({ request, env }) {
     return json({ error: 'Unable to publish announcement.' }, 500);
   }
 }
-s

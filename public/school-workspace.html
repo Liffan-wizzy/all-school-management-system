@@ -515,7 +515,35 @@ const modules = {
     form:'assignment'
   },
 
-  marks:{
+  marks:{School notices and communication.',
+    form:'announcement'
+  },
+
+  reports:{
+    title:'Reports',
+    path:'/api/reports',
+    roles:[
+      'SCHOOL_ADMIN',
+      'DEPUTY',
+      'SENIOR_MANAGER',
+      'SECRETARY',
+      'FINANCE_OFFICE'
+    ],
+    description:
+      'Reports available according to your role.'
+  },
+
+  approvals:{
+    title:'Staff & Access',
+    path:null,
+    roles:['SCHOOL_ADMIN'],
+    description:
+      'Manage authorized school accounts and staff access.',
+    special:'approvals'
+  },
+
+  accounts:{
+    title:'Account Recovery',
     title:'Marks & Academics',
     path:'/api/marks',
     roles:[
@@ -568,35 +596,7 @@ const modules = {
       'TEACHER'
     ],
     description:
-      'School notices and communication.',
-    form:'announcement'
-  },
-
-  reports:{
-    title:'Reports',
-    path:'/api/reports',
-    roles:[
-      'SCHOOL_ADMIN',
-      'DEPUTY',
-      'SENIOR_MANAGER',
-      'SECRETARY',
-      'FINANCE_OFFICE'
-    ],
-    description:
-      'Reports available according to your role.'
-  },
-
-  approvals:{
-    title:'Staff & Access',
-    path:null,
-    roles:['SCHOOL_ADMIN'],
-    description:
-      'Manage authorized school accounts and staff access.',
-    special:'approvals'
-  },
-
-  accounts:{
-    title:'Account Recovery',
+      '
     path:'/api/users',
     roles:['SCHOOL_ADMIN'],
     description:
