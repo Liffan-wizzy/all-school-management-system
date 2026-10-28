@@ -430,11 +430,10 @@ const esc = value =>
     }[character])
   );
 const modules = {
-
-  home:{
-    title:'Overview',
-    path:null,
-    roles:[
+  home: {
+    title: 'Overview',
+    path: null,
+    roles: [
       'SCHOOL_ADMIN',
       'DEPUTY',
       'SENIOR_MANAGER',
@@ -442,23 +441,21 @@ const modules = {
       'FINANCE_OFFICE',
       'TEACHER'
     ],
-    description:
-      'Your school dashboard and permitted services.'
+    description: 'Your school dashboard and permitted services.'
   },
 
-  subscription:{
-    title:'Liffan Access & Support',
-    path:null,
-    roles:['SCHOOL_ADMIN'],
-    description:
-      'View school access status and contact Liffan administration.',
-    special:'subscription'
+  subscription: {
+    title: 'Liffan Access & Support',
+    path: null,
+    roles: ['SCHOOL_ADMIN'],
+    description: 'View school access status and contact Liffan administration.',
+    special: 'subscription'
   },
 
-  profile:{
-    title:'School Profile & Media',
-    path:'/api/school-profile',
-    roles:[
+  profile: {
+    title: 'School Profile & Media',
+    path: '/api/school-profile',
+    roles: [
       'SCHOOL_ADMIN',
       'DEPUTY',
       'SENIOR_MANAGER',
@@ -466,52 +463,48 @@ const modules = {
       'FINANCE_OFFICE',
       'TEACHER'
     ],
-    description:
-      'School identity, contact information, logo and photos.',
-    special:'profile'
+    description: 'School identity, contact information, logo and photos.',
+    special: 'profile'
   },
 
-  students:{
-    title:'Students',
-    path:'/api/students',
-    roles:[
+  students: {
+    title: 'Students',
+    path: '/api/students',
+    roles: [
       'SCHOOL_ADMIN',
       'DEPUTY',
       'SENIOR_MANAGER',
       'SECRETARY',
       'TEACHER'
     ],
-    description:
-      'Student records according to your assigned responsibilities.'
+    description: 'Student records according to your assigned responsibilities.'
   },
 
-  subjects:{
-    title:'Subjects',
-    path:'/api/subjects',
-    roles:[
+  subjects: {
+    title: 'Subjects',
+    path: '/api/subjects',
+    roles: [
       'SCHOOL_ADMIN',
       'DEPUTY',
       'SENIOR_MANAGER',
       'SECRETARY',
       'TEACHER'
     ],
-    description:
-      'School subjects and academic mappings.',
-    form:'subject'
+    description: 'School subjects and academic mappings.',
+    form: 'subject'
   },
 
-  assignments:{
-    title:'Teacher Assignments',
-    path:'/api/teacher-assignments',
-    roles:[
+  assignments: {
+    title: 'Teacher Assignments',
+    path: '/api/teacher-assignments',
+    roles: [
       'SCHOOL_ADMIN',
       'DEPUTY',
       'SENIOR_MANAGER',
       'TEACHER'
     ],
-    description:
-      'Teacher subject and class assignments.',
-    form:'assignment'
+    description: 'Teacher subject and class assignments.',
+    form: 'assignment'
   },
 
   marks: {
@@ -525,72 +518,67 @@ const modules = {
       'TEACHER'
     ],
     description: 'Student marks and academic results.',
-    form: 'marks'
+    form: 'mark'
   },
 
-  reports:{
-    title:'Reports',
-    path:'/api/reports',
-    roles:[
+  reports: {
+    title: 'Reports',
+    path: '/api/reports',
+    roles: [
       'SCHOOL_ADMIN',
       'DEPUTY',
       'SENIOR_MANAGER',
       'SECRETARY',
       'FINANCE_OFFICE'
     ],
-    description:
-      'Reports available according to your role.'
+    description: 'Reports available according to your role.'
   },
 
-  approvals:{
-    title:'Staff & Access',
-    path:null,
-    roles:['SCHOOL_ADMIN'],
-    description:
-      'Manage authorized school accounts and staff access.',
-    special:'approvals'
+  approvals: {
+    title: 'Staff & Access',
+    path: null,
+    roles: ['SCHOOL_ADMIN'],
+    description: 'Manage authorized school accounts and staff access.',
+    special: 'approvals'
   },
 
-  accounts:{
-    title:'Account Recovery',
-    path:'/api/users',
-    roles:['SCHOOL_ADMIN'],
-    description:
-      'Protected school account recovery.',
-    form:'reset'
+  accounts: {
+    title: 'Account Recovery',
+    path: '/api/users',
+    roles: ['SCHOOL_ADMIN'],
+    description: 'Protected school account recovery.',
+    form: 'reset'
   },
 
-  attendance:{
-    title:'Attendance',
-    path:'/api/attendance',
-    roles:[
+  attendance: {
+    title: 'Attendance',
+    path: '/api/attendance',
+    roles: [
       'SCHOOL_ADMIN',
       'DEPUTY',
       'SENIOR_MANAGER',
       'SECRETARY',
       'TEACHER'
     ],
-    description:
-      'Attendance according to your assigned responsibilities.',
-    form:'attendance'
+    description: 'Attendance according to your assigned responsibilities.',
+    form: 'attendance'
   },
 
-  fees:{
-    title:'Fees & Payment Records',
-    path:'/api/fees',
-    roles:[
+  fees: {
+    title: 'Fees & Payment Records',
+    path: '/api/fees',
+    roles: [
       'SCHOOL_ADMIN',
       'FINANCE_OFFICE'
     ],
-    description:
-      'Fee balances, confirmed payment records and financial reporting.',
-    form:'fee'
+    description: 'Fee balances, confirmed payment records and financial reporting.',
+    form: 'fee'
   },
 
-  announcements:{
-    title:'Announcements',
-    path:'/api/announcements',
-    roles:[
+  announcements: {
+    title: 'Announcements',
+    path: '/api/announcements',
+    roles: [
       'SCHOOL_ADMIN',
       'DEPUTY',
       'SENIOR_MANAGER',
@@ -598,46 +586,10 @@ const modules = {
       'FINANCE_OFFICE',
       'TEACHER'
     ],
-    description:
-      'School announcements and notices.',
-    form:'announcement'
+    description: 'School announcements and notices.',
+    form: 'announcement'
   }
-
-};
-  fees:{
-    title:'Fees & Payment Records',
-    path:'/api/fees',
-    roles:[
-      'SCHOOL_ADMIN',
-      'FINANCE_OFFICE'
-    ],
-    description:
-      'Fee balances, confirmed payment records and financial reporting.',
-    form:'fee'
-  },
-
-  announcements:{
-    title:'Announcements',
-    path:'/api/announcements',
-    roles:[
-      'SCHOOL_ADMIN',
-      'DEPUTY',
-      'SENIOR_MANAGER',
-      'SECRETARY',
-      'FINANCE_OFFICE',
-      'TEACHER'
-    ],
-    description:
-      '
-    path:'/api/users',
-    roles:['SCHOOL_ADMIN'],
-    description:
-      'Protected school account recovery.',
-    form:'reset'
-  }
-
-};
-
+}
 function schoolOperational(){
   return Boolean(
     me?.school_access?.active

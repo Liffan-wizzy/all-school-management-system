@@ -21,7 +21,6 @@ export function parseJson(request) {
 export function randomId() {
   return crypto.randomUUID();
 }
-
 function bytesToBase64Url(bytes) {
   let binary = '';
 
@@ -34,7 +33,6 @@ function bytesToBase64Url(bytes) {
     .replace(/\//g, '_')
     .replace(/=+$/g, '');
 }
-
 function base64UrlToBytes(value) {
   const normalized = value
     .replace(/-/g, '+')
