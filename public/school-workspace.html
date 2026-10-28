@@ -429,7 +429,6 @@ const esc = value =>
       "'":'&#39;'
     }[character])
   );
-
 const modules = {
 
   home:{
@@ -514,19 +513,20 @@ const modules = {
       'Teacher subject and class assignments.',
     form:'assignment'
   },
-marks: {
+
+  marks: {
     title: 'Marks',
     path: '/api/marks',
     roles: [
-        'SCHOOL_ADMIN',
-        'DEPUTY',
-        'SENIOR_MANAGER',
-        'SECRETARY',
-        'TEACHER'
+      'SCHOOL_ADMIN',
+      'DEPUTY',
+      'SENIOR_MANAGER',
+      'SECRETARY',
+      'TEACHER'
     ],
     description: 'Student marks and academic results.',
     form: 'marks'
-},
+  },
 
   reports:{
     title:'Reports',
@@ -553,17 +553,11 @@ marks: {
 
   accounts:{
     title:'Account Recovery',
-    title:'Marks & Academics',
-    path:'/api/marks',
-    roles:[
-      'SCHOOL_ADMIN',
-      'DEPUTY',
-      'SENIOR_MANAGER',
-      'TEACHER'
-    ],
+    path:'/api/users',
+    roles:['SCHOOL_ADMIN'],
     description:
-      'Academic results according to your permissions.',
-    form:'mark'
+      'Protected school account recovery.',
+    form:'reset'
   },
 
   attendance:{
@@ -581,6 +575,35 @@ marks: {
     form:'attendance'
   },
 
+  fees:{
+    title:'Fees & Payment Records',
+    path:'/api/fees',
+    roles:[
+      'SCHOOL_ADMIN',
+      'FINANCE_OFFICE'
+    ],
+    description:
+      'Fee balances, confirmed payment records and financial reporting.',
+    form:'fee'
+  },
+
+  announcements:{
+    title:'Announcements',
+    path:'/api/announcements',
+    roles:[
+      'SCHOOL_ADMIN',
+      'DEPUTY',
+      'SENIOR_MANAGER',
+      'SECRETARY',
+      'FINANCE_OFFICE',
+      'TEACHER'
+    ],
+    description:
+      'School announcements and notices.',
+    form:'announcement'
+  }
+
+};
   fees:{
     title:'Fees & Payment Records',
     path:'/api/fees',
