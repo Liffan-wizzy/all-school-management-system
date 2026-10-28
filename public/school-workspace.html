@@ -514,10 +514,19 @@ const modules = {
       'Teacher subject and class assignments.',
     form:'assignment'
   },
-
-  marks:{School notices and communication.',
-    form:'announcement'
-  },
+marks: {
+    title: 'Marks',
+    path: '/api/marks',
+    roles: [
+        'SCHOOL_ADMIN',
+        'DEPUTY',
+        'SENIOR_MANAGER',
+        'SECRETARY',
+        'TEACHER'
+    ],
+    description: 'Student marks and academic results.',
+    form: 'marks'
+},
 
   reports:{
     title:'Reports',
