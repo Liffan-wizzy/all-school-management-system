@@ -588,6 +588,20 @@ const modules = {
     ],
     description: 'School announcements and notices.',
     form: 'announcement'
+  },
+    messages: {
+    title: 'Private Staff Messages',
+    path: '/api/messages',
+    roles: [
+      'SCHOOL_ADMIN',
+      'DEPUTY',
+      'SENIOR_MANAGER',
+      'SECRETARY',
+      'FINANCE_OFFICE',
+      'TEACHER'
+    ],
+    description: 'Private conversations between authorized staff.',
+    special: 'messages'
   }
 }
 function schoolOperational(){
@@ -1573,6 +1587,168 @@ function renderProfile(data){
     );
 }
 
+async function renderMessages() {
+  const slot = $('#contentSlot');
+
+  slot.innerHTML = '<p>Loading conversations...</p>';
+
+  try {
+    const data = await api('/api/messages');
+    const conversations = data.conversations || [];
+
+    slot.innerHTML = `
+      <div class="notice">
+        <strong>Private Staff Messages</strong>
+        <p class="muted">
+          Messages are limited to authorized staff
+          within your school.
+        </p>
+      </div>
+
+      <form id="newConversationForm">
+        <label>
+          Recipient account IDs (comma-separated)
+          <input name="recipients" required
+            placeholder="Enter staff account IDs">
+        </label>
+
+        <label>
+          Conversation title
+          <input name="title" maxlength="160">
+        </label>
+
+        <label style="grid-column:1/-1">
+          First message
+          <textarea name="message" required
+            maxlength="5000"></textarea>
+        </label>
+
+        <button type="submit">Start conversation</button>
+      </form>
+
+      <h3>Your conversations</h3>
+
+      <div id="conversationList">
+        ${
+          conversations.length
+            ? conversations.map(c => `
+                <div class="profile-card">
+                  <strong>${esc(c.title || 'Private conversation')}</strong>
+                  <p>${esc(c.last_message || 'No messages yet')}</p>
+                  <button type="button"
+                    class="openConversation"
+                    data-id="${esc(c.id)}">
+                    Open conversation
+                  </button>
+                </div>
+              `).join('')
+            : '<p class="muted">No conversations yet.</p>'
+        }
+      </div>
+
+      <div id="conversationThread"></div>
+    `;
+
+    slot.querySelectorAll('.openConversation')
+      .forEach(button => {
+        button.addEventListener('click', async () => {
+          const thread = $('#conversationThread');
+          const id = button.dataset.id;
+
+          try {
+            const result = await api(
+              '/api/messages?conversation_id=' +
+              encodeURIComponent(id)
+            );
+
+            thread.innerHTML = `
+              <h3>Conversation</h3>
+              <div class="notice">
+                ${
+                  (result.messages || []).map(m => `
+                    <p>
+                      <strong>${esc(m.sender_id)}</strong><br>
+                      ${esc(m.body)}<br>
+                      <small>${esc(m.created_at)}</small>
+                    </p>
+                    <hr>
+                  `).join('') || 'No messages yet.'
+                }
+              </div>
+
+              <form id="replyForm">
+                <label style="grid-column:1/-1">
+                  Reply
+                  <textarea name="message" required
+                    maxlength="5000"></textarea>
+                </label>
+                <button type="submit">Send reply</button>
+              </form>
+            `;
+
+            $('#replyForm').addEventListener('submit', async e => {
+              e.preventDefault();
+              const form = e.currentTarget;
+              const message = new FormData(form).get('message');
+
+              try {
+                await api('/api/messages', {
+                  method: 'POST',
+                  body: JSON.stringify({
+                    action: 'send',
+                    conversation_id: id,
+                    message
+                  })
+                });
+
+                await renderMessages();
+                say('Reply sent successfully.');
+              } catch (error) {
+                say(error.message, true);
+              }
+            });
+          } catch (error) {
+            say(error.message, true);
+          }
+        });
+      });
+
+    $('#newConversationForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const form = e.currentTarget;
+      const values = Object.fromEntries(new FormData(form).entries());
+
+      const recipients = values.recipients
+        .split(',')
+        .map(id => id.trim())
+        .filter(Boolean);
+
+      try {
+        await api('/api/messages', {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'create',
+            recipients,
+            title: values.title,
+            message: values.message
+          })
+        });
+
+        await renderMessages();
+        say('Conversation created successfully.');
+      } catch (error) {
+        say(error.message, true);
+      }
+    });
+
+    $('#output').textContent =
+      `${conversations.length} conversation(s) loaded.`;
+  } catch (error) {
+    slot.innerHTML = '';
+    throw error;
+  }
+}
+
 function renderApprovals(){
 
   $('#contentSlot').innerHTML = `
@@ -1655,14 +1831,10 @@ async function load(){
 
   const module =
     modules[current];
-
-  if(!module){
-    throw new Error(
-      'Dashboard module was not found.'
-    );
+  if (module.special === 'messages') {
+    await renderMessages();
+    return;
   }
-
-  if(module.special === 'profile'){
 
     const data =
       await api(
