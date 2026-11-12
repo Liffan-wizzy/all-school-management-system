@@ -1,25 +1,61 @@
 import { getTableInfo, pickColumn, quoteIdentifier, json, randomId } from './auth.js';
 
+
+const studentShapeCache = new WeakMap();
+
 export async function studentShape(db) {
+  const cached = studentShapeCache.get(db);
+  if (cached) return cached;
+
   const columns = await getTableInfo(db, 'students');
+
   const id = pickColumn(columns, ['id', 'student_id']);
   const school = pickColumn(columns, ['school_id']);
   const name = pickColumn(columns, ['full_name', 'name', 'student_name']);
-  const admission = pickColumn(columns, ['admission_no', 'admission_number', 'admission_code']);
-  const className = pickColumn(columns, ['class_name', 'class', 'grade', 'form']);
-  if (!id || !school || !name) throw new Error('students must have an ID, school_id and name column');
-  return { columns, id, school, name, admission, className };
+  const admission = pickColumn(columns, [
+    'admission_no',
+    'admission_number',
+    'admission_code'
+  ]);
+  const className = pickColumn(columns, [
+    'class_name',
+    'class',
+    'grade',
+    'form'
+  ]);
+
+  if (!id || !school || !name) {
+    throw new Error('students must have an ID, school_id and name column');
+  }
+
+  const shape = { columns, id, school, name, admission, className };
+  studentShapeCache.set(db, shape);
+
+  return shape;
 }
 
 export async function findStudent(db, studentId, schoolId) {
   const shape = await studentShape(db);
-  const classSql = shape.className ? `, ${quoteIdentifier(shape.className)} AS class_name` : ', NULL AS class_name';
-  const admissionSql = shape.admission ? `, ${quoteIdentifier(shape.admission)} AS admission_no` : ', NULL AS admission_no';
-  return db.prepare(`SELECT CAST(${quoteIdentifier(shape.id)} AS TEXT) AS id,
-    ${quoteIdentifier(shape.name)} AS full_name${classSql}${admissionSql}
-    FROM students WHERE CAST(${quoteIdentifier(shape.id)} AS TEXT) = ?
-      AND CAST(${quoteIdentifier(shape.school)} AS TEXT) = ? LIMIT 1`)
-    .bind(String(studentId), String(schoolId)).first();
+
+  const classSql = shape.className
+    ? `, ${quoteIdentifier(shape.className)} AS class_name`
+    : ', NULL AS class_name';
+
+  const admissionSql = shape.admission
+    ? `, ${quoteIdentifier(shape.admission)} AS admission_no`
+    : ', NULL AS admission_no';
+
+  return db.prepare(`
+    SELECT
+      ${quoteIdentifier(shape.id)} AS id,
+      ${quoteIdentifier(shape.name)} AS full_name
+      ${classSql}
+      ${admissionSql}
+    FROM students
+    WHERE ${quoteIdentifier(shape.id)} = ?
+      AND ${quoteIdentifier(shape.school)} = ?
+    LIMIT 1
+  `).bind(studentId, schoolId).first();
 }
 
 export async function requireStudentScope(db, studentId, schoolId) {
